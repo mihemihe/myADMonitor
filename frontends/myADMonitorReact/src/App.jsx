@@ -13,8 +13,8 @@ import './App.css'
 import NavbarClassic from './Navbar.jsx';
 import HeaderData from './HeaderData.jsx';
 
-const API_URL = 'https://localhost:5001/api/CacheInfo/recentchanges3';
-const API_URL_HEADER = 'https://localhost:5001/api/CacheInfo/headerdata';
+const API_URL = 'http://localhost:5000/api/CacheInfo/recentchanges3';
+const API_URL_HEADER = 'http://localhost:5000/api/CacheInfo/headerdata';
 
 
 
