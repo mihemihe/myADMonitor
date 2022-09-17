@@ -1,33 +1,73 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
+import Change from './Change.jsx';
+import ChangeCompact from './ChangeCompact.jsx';
+import ChangeTable from './ChangeTable.jsx';
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import { useEffect } from 'react';
+
+
 import './App.css'
+import NavbarClassic from './Navbar.jsx';
+import HeaderData from './HeaderData.jsx';
+
+const API_URL = 'https://localhost:5001/api/CacheInfo/recentchanges3';
+const API_URL_HEADER = 'https://localhost:5001/api/CacheInfo/headerdata';
+
+
+
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [changes, setChanges] = useState([]);
+  const [stats, setStats] = useState([]);
+
+  const [time, setTime] = useState(Date.now());
+  const seconds = 2000;
+
+  const getChanges = async () => {
+    const response = await fetch(API_URL);
+    const data = await response.json();
+    data.reverse();
+    console.log(data);
+    setChanges(data);
+  }
+
+  const getHeaderData = async () => {
+    const response = await fetch(API_URL_HEADER);
+    const data = await response.json();
+    console.log(data);
+    setStats(data);
+  }
+
+  // update component ever n seconds
+
+
+  useEffect(() => {
+    // getChanges();
+
+
+    const interval = setInterval(() => { getChanges() }, seconds)
+    const interval2 = setInterval(() => { getHeaderData() }, seconds * 2)
+
+    return () => clearInterval(interval, interval2)
+
+
+
+
+  }, []);
+
+
 
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
+
+    <Container fluid>
+      <NavbarClassic></NavbarClassic>
+      <HeaderData HeaderDataProp={stats} ></HeaderData>
+      <h3>Pulling latest changes every {seconds / 1000} seconds...</h3>
+      {changes.map(c => (<ChangeTable recentEvent={c} />))}
+    </Container>
   )
 }
 

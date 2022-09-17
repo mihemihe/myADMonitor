@@ -1,0 +1,3 @@
+Vite build > To build the project to /dist folder. Production.
+npm run dev > to run in dev mode. dev. "Vite" alone will do the same
+vite preview > Locally preview production build
