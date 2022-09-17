@@ -42,3 +42,9 @@ Password changes are tracked because pwdLastSet and whenChanged attributes are c
 - All objects are cached on memory during the initialization, based.
 - At regular intervals, Active Directory is queried for USN changes and pulls and stores those changes in memory
 - The chanes collection is published via the REST API
+
+### The program can't start because api-ms-win-crt-string-l1-1-0.dll is missing from your computer. Try reinstalling the program to fix this problem.
+Some old Windows operating systems may require an update of the C Universal Runtime
+There are two solutions:
+- Update the server using Windows Update
+- Download and update the Universal C Runtime directly from : https://support.microsoft.com/en-us/topic/update-for-universal-c-runtime-in-windows-322bf30f-4735-bb94-3949-49f5c49f4732
