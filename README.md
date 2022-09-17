@@ -22,7 +22,7 @@ myADMonitor is an open-source Active Directory changes tracking tool. It gives y
 - Extract the release zip file 
 - (Optional) Edit the config.ini file
 - Execute myADMonitor.exe
-- Open your browser and navigate to https://localhost:5001
+- Open your browser and navigate to https://localhost:5000
 
 
 ## FAQ
