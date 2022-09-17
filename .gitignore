@@ -1,3 +1,7 @@
 # Multiple gitignore are used on each subfolder, with different settings. This is just to remove the .vs cache 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
+
+
+# Editor directories and files
+.vscode/*
