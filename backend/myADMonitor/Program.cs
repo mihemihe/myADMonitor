@@ -51,7 +51,7 @@ namespace myADMonitor
 
             app.UseCors(MyAllowSpecificOrigins);
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseAuthorization();
