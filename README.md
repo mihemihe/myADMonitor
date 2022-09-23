@@ -9,6 +9,7 @@ myADMonitor is an open-source Active Directory changes tracking tool. It gives y
 - [Quick-Start](#quick-start)
 - [Features](#features)
 - [FAQ](#faq)
+- [Known Issues and Limitations](#knownissuesandlimitations)
 
 
 ## Features
@@ -48,3 +49,8 @@ Some old Windows operating systems may require an update of the C Universal Runt
 There are two solutions:
 - Update the server using Windows Update
 - Download and update the Universal C Runtime directly from : https://support.microsoft.com/en-us/topic/update-for-universal-c-runtime-in-windows-322bf30f-4735-bb94-3949-49f5c49f4732
+
+## Known issues and limitations
+
+### Deleted objects are not tracked. This is in the roadmap. 
+### ntSecurityDescriptor (AKA Object permissions) are not tracked. This is also in the roadmap.
