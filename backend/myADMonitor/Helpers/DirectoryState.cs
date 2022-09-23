@@ -81,6 +81,7 @@ namespace myADMonitor.Helpers
             // LDAP://testdc.domain01.local/DC=DOMAIN01,DC=LOCAL
             LDAPConnectionString = CreateLDAPConnectionString(connectedDC.Name, DomainNameFQDN);
 
+            // Starting new sync strategy. Raw USN combing is slow in some environments
             #region NEW SYNC EXECUTION
 
             Console.WriteLine("NEW SYNC start: " + DateTime.Now);
