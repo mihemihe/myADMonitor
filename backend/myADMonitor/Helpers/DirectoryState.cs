@@ -1,5 +1,6 @@
 ﻿using Config.Net;
 using myADMonitor.Models;
+using System.Collections.Generic;
 using System.DirectoryServices;
 using System.DirectoryServices.ActiveDirectory;
 
@@ -27,7 +28,7 @@ namespace myADMonitor.Helpers
         public static void Start()
         {
 #if (DEBUG)
-            configFilePath = @"C:\dev\myADMonitor\myADMonitor\myADMonitor\config.ini";
+            configFilePath = @"C:\gitpublic\backend\myADMonitor\config.ini";
 #elif (RELEASE)
             configFilePath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory + @"\config.ini");
             Console.WriteLine(">>> " + configFilePath);
@@ -81,14 +82,55 @@ namespace myADMonitor.Helpers
             // LDAP://testdc.domain01.local/DC=DOMAIN01,DC=LOCAL
             LDAPConnectionString = CreateLDAPConnectionString(connectedDC.Name, DomainNameFQDN);
 
+            // Starting new sync strategy. Raw USN combing is slow in some environments
             #region NEW SYNC EXECUTION
+            List<long> usns = new List<long>();
+            int counter = 0;
+            SearchResultCollection tempFoundObjects = LDAPUtil.LDAPSearchCollection("(objectClass=*)", LDAPConnectionString);
+            foreach (SearchResult item in tempFoundObjects)
+            {
 
+                usns.Add((long)item.Properties["usnchanged"][0]);
+                
+
+            }
+            usns.Sort();
+
+            long currentObjectUSN = 0;
+            List<int> ranges = new List<int>();
+            int currentRange = 0; // 0 to 999
+            //List<long> usns2 = new List<long>() { 5, 10, 1000, 1001, 1999, 2000, 2001, 2007 };
+            foreach (long usnValue in usns)
+            {
+                int startRange = currentRange * 1000;
+                int endRange = startRange + 999; //TODO change magic number
+                while (!(usnValue >= startRange && usnValue <= endRange))
+                {
+                    currentRange++;
+                    startRange = currentRange * 1000;
+                    endRange = startRange + 999; //TODO change magic number
+                }
+                if(usnValue >= startRange && usnValue <= endRange)
+                {
+                    //Console.WriteLine("value: {0} is in the range {1} {2}",usnValue,startRange, endRange);
+                    ranges.Add(currentRange);
+                }
+            }
+
+            ranges = ranges.Distinct().ToList();
+            ranges.Sort();
+
+            Console.WriteLine(ranges);
+
+            // Query all ranges
+            // save startingTopUSN
             Console.WriteLine("NEW SYNC start: " + DateTime.Now);
             highestUSN = connectedDC.HighestCommittedUsn;
             startingUSN = connectedDC.HighestCommittedUsn;
-            do
+            foreach (int range in ranges)
             {
-                //Console.WriteLine("Querying range {0} to {1}", movingUSNLower, movingUSNUpper);
+                movingUSNLower = range * 1000;
+                movingUSNUpper = movingUSNLower + 999;
                 string query = LDAPUtil.LDAPQueryRangeGenerator(movingUSNLower, movingUSNUpper);
                 SearchResultCollection foundObjects = LDAPUtil.LDAPSearchCollection(query, LDAPConnectionString);
                 try
@@ -104,35 +146,66 @@ namespace myADMonitor.Helpers
                     }
                     throw;
                 }
-
                 int foundObjectsCount = foundObjects.Count;
-                movingUSNLower += stepUSN;
-                movingUSNUpper += stepUSN;
                 highestUSN = connectedDC.HighestCommittedUsn;
-                Console.WriteLine("comparing {0} < {1}. Found {2}", movingUSNLower, highestUSN, foundObjectsCount);
-            } while (movingUSNLower <= highestUSN);
+                Console.WriteLine("Range {0} < {1}. Found {2}", movingUSNLower, movingUSNUpper, foundObjectsCount);
 
-            if (startingUSN < highestUSN)
-            {
-                Console.WriteLine("Highest USN changed during initial sync from {0} to {1}. Not a problem last range was {2} to {3}",
-                    startingUSN,
-                    highestUSN,
-                    movingUSNLower - stepUSN,
-                    movingUSNUpper - stepUSN);
             }
-            else
-            {
-                Console.WriteLine("Highest did NOT increase: from {0} to {1}. Not a problem last range was {2} to {3}",
-                   startingUSN,
-                   highestUSN,
-                   movingUSNLower - stepUSN,
-                   movingUSNUpper - stepUSN);
-            }
+            #endregion NEW SYNC EXECUTION
+
+            #region OLD SYNC FOR REFERENCE
+            //Below is the old strategy
+            //Console.WriteLine("NEW SYNC start: " + DateTime.Now);
+            //highestUSN = connectedDC.HighestCommittedUsn;
+            //startingUSN = connectedDC.HighestCommittedUsn;
+            //do
+            //{
+            //    //Console.WriteLine("Querying range {0} to {1}", movingUSNLower, movingUSNUpper);
+            //    string query = LDAPUtil.LDAPQueryRangeGenerator(movingUSNLower, movingUSNUpper);
+            //    SearchResultCollection foundObjects = LDAPUtil.LDAPSearchCollection(query, LDAPConnectionString);
+            //    try
+            //    {
+            //        foreach (SearchResult searchResult in foundObjects) _metaverse.AddObjectAndChanges(searchResult);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        if (ex is ArgumentException)
+            //        {
+            //            Console.WriteLine("{0}. Closing...", ex.Message);
+            //            System.Environment.Exit(1);
+            //        }
+            //        throw;
+            //    }
+
+            //    int foundObjectsCount = foundObjects.Count;
+            //    movingUSNLower += stepUSN;
+            //    movingUSNUpper += stepUSN;
+            //    highestUSN = connectedDC.HighestCommittedUsn;
+            //    Console.WriteLine("comparing {0} < {1}. Found {2}", movingUSNLower, highestUSN, foundObjectsCount);
+            //} while (movingUSNLower <= highestUSN);
+
+            //if (startingUSN < highestUSN)
+            //{
+            //    Console.WriteLine("Highest USN changed during initial sync from {0} to {1}. Not a problem last range was {2} to {3}",
+            //        startingUSN,
+            //        highestUSN,
+            //        movingUSNLower - stepUSN,
+            //        movingUSNUpper - stepUSN);
+            //}
+            //else
+            //{
+            //    Console.WriteLine("Highest did NOT increase: from {0} to {1}. Not a problem last range was {2} to {3}",
+            //       startingUSN,
+            //       highestUSN,
+            //       movingUSNLower - stepUSN,
+            //       movingUSNUpper - stepUSN);
+            //} 
+            #endregion
 
             status_dBInitialized = true;
-            Console.WriteLine("test");
+            
 
-            #endregion NEW SYNC EXECUTION
+            
 
             Console.WriteLine("NEW SYNC Complete: " + DateTime.Now);
 
