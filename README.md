@@ -26,8 +26,8 @@ myADMonitor is an open-source Active Directory changes tracking tool. It gives y
 
 
 ## FAQ
-### myADMonitor cannot find a close domain controller
-Edit the config.ini file and hardcode a reachable Domain Controller
+### myADMonitor cannot find a close domain controller automatically
+myADMonitor will try to find a domain controller in the same AD Site, of no one is found, then it will try to reach any Domain Controller in the Domain. If none of the Domain Controllers are reachable, it will close. However, if you prefer to configure a fixed Domain Controller, edit the config.ini file tiwh your prefered Domain Controller.
 
 ### Does myADMonitor require special permissions to run?
 No, only read-only should be enough for most of the cases. 
