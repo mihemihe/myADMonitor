@@ -44,16 +44,17 @@ namespace myADMonitor.Helpers
                 AttributeSyntaxDecoder.Add(property.Name, property);
 
             }
-            var a = AttributeSyntaxDecoder.Where(x => x.Value?.Syntax is not null).Select(x => x.Value.Syntax).ToList();
-            var b = a.Distinct();                      
-            //Special syntax for linked with more than 5k
-            var c = AttributeSyntaxDecoder["userAccountControl"];
-            foreach (var ads in b)
-            {
+            // Code below to find the syntax of a particular attribute.
+            //var a = AttributeSyntaxDecoder.Where(x => x.Value?.Syntax is not null).Select(x => x.Value.Syntax).ToList();
+            //var b = a.Distinct();                      
+            ////Special syntax for linked with more than 5k
+            //var c = AttributeSyntaxDecoder["userAccountControl"];
+            //foreach (var ads in b)
+            //{
 
-                metrics.Add(ads.ToString(), 0);
+            //    metrics.Add(ads.ToString(), 0);
                 
-            }
+            //}
 
 
         }
@@ -169,7 +170,7 @@ namespace myADMonitor.Helpers
             Tuple<ActiveDirectorySyntax, bool> _syntaxMultiOrSingle  = 
                 new Tuple<ActiveDirectorySyntax, bool>(_syntaxMultiOrSingle2.ADSyntax, _syntaxMultiOrSingle2.isSingleValued);
             List<string> __tempAttributeValues = new();
-            metrics[_syntaxMultiOrSingle2.ADSyntax.ToString()] += 1;
+            //metrics[_syntaxMultiOrSingle2.ADSyntax.ToString()] += 1;
             switch (_syntaxMultiOrSingle2.ADSyntax, _syntaxMultiOrSingle2.isSingleValued)
             {
                 case (ActiveDirectorySyntax.Bool, true):
