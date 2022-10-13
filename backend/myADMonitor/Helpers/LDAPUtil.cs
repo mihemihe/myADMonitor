@@ -71,8 +71,7 @@ namespace myADMonitor.Helpers
             string currentRange = String.Format(range, idx, step);
             string[] propertiesToLoad = new string[] { currentRange };            
             DirectorySearcher searcher = new DirectorySearcher(entry, String.Format("({0}=*)", attribute), propertiesToLoad, System.DirectoryServices.SearchScope.Base);
-            Console.WriteLine(searcher);
-            Console.WriteLine("Hello, World!");
+
 
             bool lastSearch = false;
             SearchResult sr = null;
@@ -88,7 +87,7 @@ namespace myADMonitor.Helpers
                 {
                     if (sr.Properties.Contains(currentRange))
                     {
-                        Console.WriteLine("Found in range: " + sr.Properties[currentRange].Count);
+                        Console.WriteLine("INFO\tElements found in this range of 1500 elements: " + sr.Properties[currentRange].Count);
                         foreach (object dn in sr.Properties[currentRange])
                         {
                             al.Add(dn.ToString());

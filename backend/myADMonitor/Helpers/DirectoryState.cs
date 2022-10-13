@@ -49,7 +49,8 @@ namespace myADMonitor.Helpers
             listenAllIPs = false;
             tCPPort = 5000;
 
-            Console.WriteLine("2: " + configFilePath);
+            Console.WriteLine("SETTING\t Config file path:\t" + configFilePath);
+            
             runConfig = new ConfigurationBuilder<CustomConfig>()
                 .UseIniFile(configFilePath) //TODO: Stop if config file is not found
                 .Build();
@@ -104,9 +105,10 @@ namespace myADMonitor.Helpers
             }
 
             // Retrieve AD Schema syntaxes
-            Console.WriteLine("Schema syntaxes start: " + DateTime.Now);
+            Console.WriteLine("INFO\tEnumerating AD attributes and their syntaxes");
+            Console.WriteLine("INFO\tSchema syntaxes start:\t" + DateTime.Now);
             LDAPUtil.InitAttributeSyntaxTable();
-            Console.WriteLine("Schema syntaxes completed: " + DateTime.Now);
+            Console.WriteLine("INFO\tSchema syntaxes completed:\t" + DateTime.Now);
 
             // Build an LDAP connection string including Domain Controller and Domain
             // LDAP://testdc.domain01.local/DC=DOMAIN01,DC=LOCAL
@@ -114,17 +116,26 @@ namespace myADMonitor.Helpers
 
             // Starting new sync strategy. Raw USN combing is slow in some environments
             #region NEW SYNC EXECUTION
+            Console.WriteLine("INFO\tFinding highest USN...");
+            Console.WriteLine("INFO\tExcluding query pages without objects.. Please wait.");
             List<long> usns = new List<long>();
             int counter = 0;
             SearchResultCollection tempFoundObjects = LDAPUtil.LDAPSearchCollection("(objectClass=*)", LDAPConnectionString);
             foreach (SearchResult item in tempFoundObjects)
             {
+                try
+                {
+                    usns.Add((long)item.Properties["usnchanged"][0]);
+                }
+                catch
+                {
 
-                usns.Add((long)item.Properties["usnchanged"][0]);
+                }
                 
 
             }
             usns.Sort();
+            Console.WriteLine("INFO\t{0} Total USNs found", usns.Count);
 
             long currentObjectUSN = 0;
             List<int> ranges = new List<int>();
@@ -149,12 +160,14 @@ namespace myADMonitor.Helpers
 
             ranges = ranges.Distinct().ToList();
             ranges.Sort();
+            Console.WriteLine("INFO\t{0} Total pages with objects found. Starting building cache", ranges.Count);
 
-            Console.WriteLine(ranges);
+            //Console.WriteLine(ranges);
 
             // Query all ranges
             // save startingTopUSN
-            Console.WriteLine("NEW SYNC start: " + DateTime.Now);
+            Console.WriteLine("INFO\tNEW SYNC start:\t" + DateTime.Now);
+            
             highestUSN = connectedDC.HighestCommittedUsn;
             startingUSN = connectedDC.HighestCommittedUsn;
             foreach (int range in ranges)
@@ -178,7 +191,7 @@ namespace myADMonitor.Helpers
                 }
                 int foundObjectsCount = foundObjects.Count;
                 highestUSN = connectedDC.HighestCommittedUsn;
-                Console.WriteLine("Range {0} < {1}. Found {2}", movingUSNLower, movingUSNUpper, foundObjectsCount);
+                Console.WriteLine("INFO\tRange {0} < {1}\t\tFound {2} objects in this range", movingUSNLower, movingUSNUpper, foundObjectsCount);
 
             }
             #endregion NEW SYNC EXECUTION
@@ -233,11 +246,11 @@ namespace myADMonitor.Helpers
             #endregion
 
             status_dBInitialized = true;
-            
 
-            
 
-            Console.WriteLine("NEW SYNC Complete: " + DateTime.Now);
+
+            Console.WriteLine("INFO\tNEW SYNC Complete:\t" + DateTime.Now);
+            
 
             HeaderDataInfo.DomainName = DomainNameFQDN;
             HeaderDataInfo.DomainControllerFQDN = connectedDC.Name;
@@ -303,8 +316,8 @@ namespace myADMonitor.Helpers
             {
                 try
                 {
-                    Console.WriteLine(dc.Name);
-                    Console.WriteLine(dc.SiteName);
+                    Console.WriteLine("SETTING\t Domain Controller FQDN:\t" + dc.Name);
+                    Console.WriteLine("SETTING\t AD Site:\t" + dc.SiteName);
                     return dc;
                 }
                 catch (Exception)

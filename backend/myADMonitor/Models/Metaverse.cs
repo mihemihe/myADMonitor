@@ -24,23 +24,30 @@ namespace myADMonitor.Models
 
         public Metaverse()
         {
-#if DEBUG
-            filesPath = @"C:\Misc\myadmonitorlog\";
-
-#elif RELEASE
-            filesPath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory);
-#endif
+            Console.WriteLine("----------------------------- myADMonitor 0.5.004 ----------------------------");
+            Console.WriteLine("Starting...");
+            
             AllObjects = new Dictionary<Guid, ADObject>();
             ModifiedObjects = new List<string>();
             Changes = new List<Change>();
-            attributesToIgnore = new List<string>() { "msds-revealedusers" };
+            attributesToIgnore = new List<string>() { "msds-revealedusers" }; //TODO: Enhancement, test the solution work for this attribute for RDOC
 
             changesLogLines = new List<string>();
-
+            filesPath = GetFilesRootPath();
             changesLogFile = filesPath + string.Format("ADCHANGES-{0:yyyy-MM-dd_hh-mm-ss-tt}.tsv", DateTime.Now);
-            Console.WriteLine("changesLogFile: " + changesLogFile);
+            Console.WriteLine("SETTING\t Changes log file:\t" + changesLogFile);
 
             localZone = TimeZone.CurrentTimeZone;
+        }
+
+        private static string GetFilesRootPath()
+        {
+#if DEBUG
+            return @"C:\Misc\myadmonitorlog\";
+
+#elif RELEASE
+            return System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory);
+#endif
         }
 
         public void AddObjectAndChanges(SearchResult _searchResult)
