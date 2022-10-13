@@ -4,5 +4,8 @@
     {
         string DomainControllerFQDN { get; }
         string LDAPQuery { get; }
+        string ListenAllIPs { get; }
+        string TCPPort { get; }
+
     }
 }

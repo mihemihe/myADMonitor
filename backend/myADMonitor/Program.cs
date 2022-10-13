@@ -57,6 +57,15 @@ namespace myADMonitor
             app.UseAuthorization();
 
             app.MapControllers();
+            if (DirectoryState.listenAllIPs)
+            {
+                app.Urls.Add("http://0.0.0.0:" + DirectoryState.tCPPort);
+            }
+            else
+            {
+                app.Urls.Add("http://localhost:" + DirectoryState.tCPPort);
+            }
+            
 
             app.Run();
         }

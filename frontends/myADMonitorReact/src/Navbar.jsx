@@ -9,7 +9,7 @@ function NavbarClassic() {
             <Container>
                 <Navbar.Brand href="/">
                     {/* <img src="/src/assets/nubedmcc.png" alt="Nube DMCC" /> */}
-                    <span>     myADMonitor v0.5.002</span>
+                    <span>     myADMonitor v0.5.004</span>
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">

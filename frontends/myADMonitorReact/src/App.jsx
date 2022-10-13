@@ -13,13 +13,35 @@ import './App.css'
 import NavbarClassic from './Navbar.jsx';
 import HeaderData from './HeaderData.jsx';
 
-const API_URL = 'http://localhost:5000/api/CacheInfo/recentchanges3';
-const API_URL_HEADER = 'http://localhost:5000/api/CacheInfo/headerdata';
+
+
+
+
+
 
 
 
 
 function App() {
+
+  var hardCodedURLForDev = false
+  var API_URL = ""
+  var API_URL_HEADER = ""
+  if (hardCodedURLForDev) {
+    API_URL = 'http://localhost:5000/api/CacheInfo/recentchanges3';
+    API_URL_HEADER = 'http://localhost:5000/api/CacheInfo/headerdata';
+    console.log(API_URL)
+    console.log(API_URL_HEADER)
+    console.log("URL hardcoded - Development")
+
+  }
+  else {
+    API_URL = window.location.protocol + "//" + window.location.host + "/api/CacheInfo/recentchanges3"
+    API_URL_HEADER = window.location.protocol + "//" + window.location.host + "/api/CacheInfo/headerdata"
+    console.log(API_URL)
+    console.log(API_URL_HEADER)
+    console.log("URL no hardcoded - Production")
+  }
   const [changes, setChanges] = useState([]);
   const [stats, setStats] = useState([]);
 

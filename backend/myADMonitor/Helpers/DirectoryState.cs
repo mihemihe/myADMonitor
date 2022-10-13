@@ -24,6 +24,8 @@ namespace myADMonitor.Helpers
         private static bool status_IsDeltaRunning;
         private static string configFilePath;
         public static CustomConfig runConfig;
+        public static bool listenAllIPs;
+        public static int tCPPort;
 
         public static void Start()
         {
@@ -44,6 +46,9 @@ namespace myADMonitor.Helpers
             HeaderDataInfo = new("", "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0);
             TotalDeltas = 0;
 
+            listenAllIPs = false;
+            tCPPort = 5000;
+
             Console.WriteLine("2: " + configFilePath);
             runConfig = new ConfigurationBuilder<CustomConfig>()
                 .UseIniFile(configFilePath) //TODO: Stop if config file is not found
@@ -52,6 +57,31 @@ namespace myADMonitor.Helpers
 
         public static void Initialize()
         {
+            // Set listening options
+            if (!String.IsNullOrWhiteSpace(DirectoryState.runConfig.ListenAllIPs) && DirectoryState.runConfig.ListenAllIPs == "1")
+                listenAllIPs = true;
+            if (!String.IsNullOrWhiteSpace(DirectoryState.runConfig.TCPPort))
+            {
+
+                var parseSuccess = int.TryParse(DirectoryState.runConfig.TCPPort, out tCPPort);
+                if (!parseSuccess)
+                {
+                    Console.WriteLine("Error parsing TCPPort number on config.ini file.");
+                    System.Environment.Exit(1);
+
+                }
+                if (tCPPort <= 0 || tCPPort >= 65535)
+                {
+                    Console.WriteLine("Please use a port on config.ini file between 1 and 65535. Ideally in the range 1024<>65534.");
+                    System.Environment.Exit(1);
+                }
+
+            }
+
+
+            
+
+
             // Find current computer domain or fail
             try
             {
