@@ -32,8 +32,9 @@ namespace myADMonitor.Helpers
 #if (DEBUG)
             configFilePath = @"C:\gitpublic\backend\myADMonitor\config.ini";
 #elif (RELEASE)
-            configFilePath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory + @"\config.ini");
-            Console.WriteLine(">>> " + configFilePath);
+            configFilePath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory + @"config.ini");
+            //Console.WriteLine("SETTING\t Config file path:\t" + configFilePath);
+            //Console.WriteLine(File.Exists(configFilePath) ? "File exists." : "File does not exist.");
 #endif
             status_dBInitialized = false;
             status_IsDeltaRunning = false;
