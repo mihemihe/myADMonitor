@@ -33,8 +33,7 @@ namespace myADMonitor.Helpers
             configFilePath = @"C:\gitpublic\backend\myADMonitor\config.ini";
 #elif (RELEASE)
             configFilePath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory + @"config.ini");
-            //Console.WriteLine("SETTING\t Config file path:\t" + configFilePath);
-            //Console.WriteLine(File.Exists(configFilePath) ? "File exists." : "File does not exist.");
+
 #endif
             status_dBInitialized = false;
             status_IsDeltaRunning = false;
@@ -51,10 +50,16 @@ namespace myADMonitor.Helpers
             tCPPort = 5000;
 
             Console.WriteLine("SETTING\t Config file path:\t" + configFilePath);
-            
+
+            // check if configFilePath file is found
+            if (!System.IO.File.Exists(configFilePath))
+            {
+                Console.WriteLine("ERROR\t" + configFilePath + " configuration file not found. Starting myADMonitor with default settings.");
+            }
             runConfig = new ConfigurationBuilder<CustomConfig>()
                 .UseIniFile(configFilePath) //TODO: Stop if config file is not found
                 .Build();
+            Console.WriteLine(runConfig);
         }
 
         public static void Initialize()
