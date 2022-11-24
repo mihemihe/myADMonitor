@@ -125,7 +125,6 @@ namespace myADMonitor.Helpers
             Console.WriteLine("INFO\tFinding highest USN...");
             Console.WriteLine("INFO\tExcluding query pages without objects.. Please wait.");
             List<long> usns = new List<long>();
-            int counter = 0;
             SearchResultCollection tempFoundObjects = LDAPUtil.LDAPSearchCollection("(objectClass=*)", LDAPConnectionString);
             foreach (SearchResult item in tempFoundObjects)
             {
@@ -143,7 +142,6 @@ namespace myADMonitor.Helpers
             usns.Sort();
             Console.WriteLine("INFO\t{0} Total USNs found", usns.Count);
 
-            long currentObjectUSN = 0;
             List<int> ranges = new List<int>();
             int currentRange = 0; // 0 to 999
             //List<long> usns2 = new List<long>() { 5, 10, 1000, 1001, 1999, 2000, 2001, 2007 };

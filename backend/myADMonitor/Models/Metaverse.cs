@@ -84,8 +84,7 @@ namespace myADMonitor.Models
                             //Console.WriteLine("useraccountcontrol");
                             // Create enum with all useraccountcontrol values
                             // decode as binary flag
-                            List<string> UACFlagsActive = new List<string>();
-                            string UAC = "";
+                            List<string> UACFlagsActive = new List<string>();                            
                             int currentUAC = (int)_searchResult.Properties["useraccountControl"][0];
 
                             foreach (int flag in Enum.GetValues(typeof(UserAccountControl)))
