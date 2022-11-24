@@ -20,7 +20,7 @@ import HeaderData from './HeaderData.jsx';
 
 function App() {
 
-  var hardCodedURLForDev = true
+  var hardCodedURLForDev = false
   var API_URL = ""
   var API_URL_HEADER = ""
   if (hardCodedURLForDev) {
