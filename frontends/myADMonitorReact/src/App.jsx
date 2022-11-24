@@ -1,11 +1,7 @@
 import { useState } from 'react'
-import Change from './Change.jsx';
-import ChangeCompact from './ChangeCompact.jsx';
 import ChangeTable from './ChangeTable.jsx';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 import { useEffect } from 'react';
 
 
@@ -24,7 +20,7 @@ import HeaderData from './HeaderData.jsx';
 
 function App() {
 
-  var hardCodedURLForDev = false
+  var hardCodedURLForDev = true
   var API_URL = ""
   var API_URL_HEADER = ""
   if (hardCodedURLForDev) {
