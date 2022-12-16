@@ -298,8 +298,17 @@ namespace myADMonitor.Models
 
             string outputline = _change.FriendlyName + "\t" + _change.AttributeName + "\t" + oldvvv + "\t" + newvvv;
 
-            using (StreamWriter sw = File.AppendText(changesLogFile)) { sw.WriteLine(outputline); }
-            //changesLogLines.Add(_change. + "\t" + _change.AttributeName + "\t" + oldvvv + "\t" + newvvv); //TODO: Save periodically using this collection
+            try
+            {
+                using (StreamWriter sw = File.AppendText(changesLogFile)) { sw.WriteLine(outputline); }
+                //changesLogLines.Add(_change. + "\t" + _change.AttributeName + "\t" + oldvvv + "\t" + newvvv); //TODO: Save periodically using this collection
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
         }
 
         public int CountCacheObjects()
