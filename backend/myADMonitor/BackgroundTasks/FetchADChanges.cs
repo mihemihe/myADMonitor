@@ -49,7 +49,12 @@ namespace myADMonitor.BackgroundTasks
                     Console.WriteLine("\r\n--------- END ------------------ | Waiting {0} seconds", seconds);
                     await Task.Delay(new TimeSpan(0, 0, seconds)); // 5 second delay
                 }
+            }).ContinueWith((t) =>
+            {
+                if (t.IsFaulted) throw t.Exception;
+                //optionally do some work);
             });
+            //TODO: Rewrite the background service to actually handle exceptions inside the task. Right now it fails silently.
             Console.WriteLine("INFO\tStarting background scheduler");
             return Task.CompletedTask;
         }

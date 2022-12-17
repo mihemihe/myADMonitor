@@ -26,7 +26,7 @@ namespace myADMonitor.Models
         {
             Console.WriteLine("----------------------------- myADMonitor 0.5.004 ----------------------------");
             Console.WriteLine("Starting...");
-            
+
             AllObjects = new Dictionary<Guid, ADObject>();
             ModifiedObjects = new List<string>();
             Changes = new List<Change>();
@@ -84,7 +84,7 @@ namespace myADMonitor.Models
                             //Console.WriteLine("useraccountcontrol");
                             // Create enum with all useraccountcontrol values
                             // decode as binary flag
-                            List<string> UACFlagsActive = new List<string>();                            
+                            List<string> UACFlagsActive = new List<string>();
                             int currentUAC = (int)_searchResult.Properties["useraccountControl"][0];
 
                             foreach (int flag in Enum.GetValues(typeof(UserAccountControl)))
@@ -298,16 +298,8 @@ namespace myADMonitor.Models
 
             string outputline = _change.FriendlyName + "\t" + _change.AttributeName + "\t" + oldvvv + "\t" + newvvv;
 
-            try
-            {
-                using (StreamWriter sw = File.AppendText(changesLogFile)) { sw.WriteLine(outputline); }
-                //changesLogLines.Add(_change. + "\t" + _change.AttributeName + "\t" + oldvvv + "\t" + newvvv); //TODO: Save periodically using this collection
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+            using (StreamWriter sw = File.AppendText(changesLogFile)) { sw.WriteLine(outputline); }
+            //changesLogLines.Add(_change. + "\t" + _change.AttributeName + "\t" + oldvvv + "\t" + newvvv); //TODO: Save periodically using this collection
 
         }
 
