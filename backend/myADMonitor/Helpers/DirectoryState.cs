@@ -9,21 +9,20 @@ namespace myADMonitor.Helpers
     public static class DirectoryState
     {
         private const StringComparison INSENSITIVE = StringComparison.CurrentCultureIgnoreCase;
-        private static string DomainNameFQDN;
-        private static DomainController connectedDC;
-        private static Metaverse _metaverse;
+        private static string? DomainNameFQDN;
+        private static DomainController? connectedDC;
+        private static Metaverse _metaverse = new();
         private static bool status_dBInitialized;
         private static string? LDAPConnectionString;
         private static long highestUSN;
         private static long startingUSN;
         private static long movingUSNLower;
         private static long movingUSNUpper;
-        private static long stepUSN;
-        private static HeaderData HeaderDataInfo;
+        private static HeaderData? HeaderDataInfo = new();
         public static long TotalDeltas;
         private static bool status_IsDeltaRunning;
-        private static string configFilePath;
-        public static CustomConfig runConfig;
+        private static string? configFilePath;
+        public static CustomConfig? runConfig;
         public static bool listenAllIPs;
         public static int tCPPort;
 
@@ -36,14 +35,11 @@ namespace myADMonitor.Helpers
 
 #endif
             status_dBInitialized = false;
-            status_IsDeltaRunning = false;
-            _metaverse = new Metaverse();
+            status_IsDeltaRunning = false;            
             highestUSN = 0;
             startingUSN = 0;
             movingUSNLower = 0;
             movingUSNUpper = 999;
-            stepUSN = 1000;
-            HeaderDataInfo = new("", "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0);
             TotalDeltas = 0;
 
             listenAllIPs = false;
@@ -60,14 +56,19 @@ namespace myADMonitor.Helpers
                 .UseIniFile(configFilePath) //TODO: Stop if config file is not found
                 .Build();
             Console.WriteLine(runConfig);
+
+            //TODO: Set all config settings here, right after reading the config file.
         }
 
         public static void Initialize()
         {
-            // Set listening options
-            if (!String.IsNullOrWhiteSpace(DirectoryState.runConfig.ListenAllIPs) && DirectoryState.runConfig.ListenAllIPs == "1")
+            // Set listening options.
+            // If setting from file is set and it is 1, set listening to 0.0.0.0. Else listenAllIPs = false (default)            
+            if (!String.IsNullOrWhiteSpace(DirectoryState.runConfig?.ListenAllIPs) && DirectoryState.runConfig.ListenAllIPs == "1")
                 listenAllIPs = true;
-            if (!String.IsNullOrWhiteSpace(DirectoryState.runConfig.TCPPort))
+
+            // Try parse the custom port if defined. Otherwise default will be used, 5000 TCP
+            if (!String.IsNullOrWhiteSpace(DirectoryState.runConfig?.TCPPort))
             {
 
                 var parseSuccess = int.TryParse(DirectoryState.runConfig.TCPPort, out tCPPort);
@@ -85,10 +86,6 @@ namespace myADMonitor.Helpers
 
             }
 
-
-            
-
-
             // Find current computer domain or fail
             try
             {
@@ -101,7 +98,7 @@ namespace myADMonitor.Helpers
             }
 
             // Find reachable Domain Controller in the same site or use the config
-            if (!String.IsNullOrWhiteSpace(runConfig.DomainControllerFQDN))
+            if (!String.IsNullOrWhiteSpace(runConfig?.DomainControllerFQDN))
             {
                 connectedDC = ConnectDomainController(runConfig.DomainControllerFQDN);
             }
@@ -122,6 +119,7 @@ namespace myADMonitor.Helpers
 
             // Starting new sync strategy. Raw USN combing is slow in some environments
             #region NEW SYNC EXECUTION
+
             Console.WriteLine("INFO\tFinding highest USN...");
             Console.WriteLine("INFO\tExcluding query pages without objects.. Please wait.");
             List<long> usns = new List<long>();
@@ -136,42 +134,15 @@ namespace myADMonitor.Helpers
                 {
 
                 }
-                
-
             }
             usns.Sort();
+
+            // The algorithm below is a bit inneficient, but it´s just integer arithmetic. O(n) complexity.
             Console.WriteLine("INFO\t{0} Total USNs found", usns.Count);
-
-            List<int> ranges = new List<int>();
-            int currentRange = 0; // 0 to 999
-            //List<long> usns2 = new List<long>() { 5, 10, 1000, 1001, 1999, 2000, 2001, 2007 };
-            foreach (long usnValue in usns)
-            {
-                int startRange = currentRange * 1000;
-                int endRange = startRange + 999; //TODO change magic number
-                while (!(usnValue >= startRange && usnValue <= endRange))
-                {
-                    currentRange++;
-                    startRange = currentRange * 1000;
-                    endRange = startRange + 999; //TODO change magic number
-                }
-                if(usnValue >= startRange && usnValue <= endRange)
-                {
-                    //Console.WriteLine("value: {0} is in the range {1} {2}",usnValue,startRange, endRange);
-                    ranges.Add(currentRange);
-                }
-            }
-
-            ranges = ranges.Distinct().ToList();
-            ranges.Sort();
+            List<int> ranges = ExtractPopulatedRanges(usns);
             Console.WriteLine("INFO\t{0} Total pages with objects found. Starting building cache", ranges.Count);
-
-            //Console.WriteLine(ranges);
-
-            // Query all ranges
-            // save startingTopUSN
             Console.WriteLine("INFO\tNEW SYNC start:\t" + DateTime.Now);
-            
+
             highestUSN = connectedDC.HighestCommittedUsn;
             startingUSN = connectedDC.HighestCommittedUsn;
             foreach (int range in ranges)
@@ -200,61 +171,12 @@ namespace myADMonitor.Helpers
             }
             #endregion NEW SYNC EXECUTION
 
-            #region OLD SYNC FOR REFERENCE
-            //Below is the old strategy
-            //Console.WriteLine("NEW SYNC start: " + DateTime.Now);
-            //highestUSN = connectedDC.HighestCommittedUsn;
-            //startingUSN = connectedDC.HighestCommittedUsn;
-            //do
-            //{
-            //    //Console.WriteLine("Querying range {0} to {1}", movingUSNLower, movingUSNUpper);
-            //    string query = LDAPUtil.LDAPQueryRangeGenerator(movingUSNLower, movingUSNUpper);
-            //    SearchResultCollection foundObjects = LDAPUtil.LDAPSearchCollection(query, LDAPConnectionString);
-            //    try
-            //    {
-            //        foreach (SearchResult searchResult in foundObjects) _metaverse.AddObjectAndChanges(searchResult);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        if (ex is ArgumentException)
-            //        {
-            //            Console.WriteLine("{0}. Closing...", ex.Message);
-            //            System.Environment.Exit(1);
-            //        }
-            //        throw;
-            //    }
-
-            //    int foundObjectsCount = foundObjects.Count;
-            //    movingUSNLower += stepUSN;
-            //    movingUSNUpper += stepUSN;
-            //    highestUSN = connectedDC.HighestCommittedUsn;
-            //    Console.WriteLine("comparing {0} < {1}. Found {2}", movingUSNLower, highestUSN, foundObjectsCount);
-            //} while (movingUSNLower <= highestUSN);
-
-            //if (startingUSN < highestUSN)
-            //{
-            //    Console.WriteLine("Highest USN changed during initial sync from {0} to {1}. Not a problem last range was {2} to {3}",
-            //        startingUSN,
-            //        highestUSN,
-            //        movingUSNLower - stepUSN,
-            //        movingUSNUpper - stepUSN);
-            //}
-            //else
-            //{
-            //    Console.WriteLine("Highest did NOT increase: from {0} to {1}. Not a problem last range was {2} to {3}",
-            //       startingUSN,
-            //       highestUSN,
-            //       movingUSNLower - stepUSN,
-            //       movingUSNUpper - stepUSN);
-            //} 
-            #endregion
-
             status_dBInitialized = true;
 
 
 
             Console.WriteLine("INFO\tNEW SYNC Complete:\t" + DateTime.Now);
-            
+
 
             HeaderDataInfo.DomainName = DomainNameFQDN;
             HeaderDataInfo.DomainControllerFQDN = connectedDC.Name;
@@ -263,6 +185,33 @@ namespace myADMonitor.Helpers
                 : HeaderDataInfo.Query = runConfig.LDAPQuery;
             UpdateHeaderDataInfo();
         } // End initialize
+
+        private static List<int> ExtractPopulatedRanges(List<long> usns)
+        {
+            List<int> ranges = new List<int>();
+            int currentRangeMultiplier = 0;
+            foreach (long usnValue in usns)
+            {
+                int startRange = currentRangeMultiplier * 1000;
+                int endRange = startRange + 999; //TODO change magic number
+                // USN do not start at 0, but probably around 5000. This skips the first ranges without objects
+                while (!(usnValue >= startRange && usnValue <= endRange))
+                {
+                    currentRangeMultiplier++;
+                    startRange = currentRangeMultiplier * 1000;
+                    endRange = startRange + 999; //TODO change magic number
+                }
+                if (usnValue >= startRange && usnValue <= endRange)
+                {
+                    //Console.WriteLine("value: {0} is in the range {1} {2}",usnValue,startRange, endRange);
+                    ranges.Add(currentRangeMultiplier);
+                }
+            }
+
+            ranges = ranges.Distinct().ToList();
+            ranges.Sort();
+            return ranges;
+        }
 
         public static void UpdateHeaderDataInfo()
         {
@@ -414,3 +363,6 @@ namespace myADMonitor.Helpers
         }
     }
 }
+
+//TODO: explore the tombstone on DirectorySearcher to track deleted objects
+//TODO: explore AttributeScopeQuery  to search by members for groups

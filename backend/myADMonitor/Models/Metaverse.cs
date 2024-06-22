@@ -27,17 +27,22 @@ namespace myADMonitor.Models
             Console.WriteLine("----------------------------- myADMonitor 0.5.004 ----------------------------");
             Console.WriteLine("Starting...");
 
+            // Initialize collections
             AllObjects = new Dictionary<Guid, ADObject>();
             ModifiedObjects = new List<string>();
             Changes = new List<Change>();
+
+            // Set attributes to ignore
             attributesToIgnore = new List<string>() { "msds-revealedusers" }; //TODO: Enhancement, test the solution work for this attribute for RDOC
 
+            // Initialize logging 
             changesLogLines = new List<string>();
             filesPath = GetFilesRootPath();
             changesLogFile = filesPath + string.Format("ADCHANGES-{0:yyyy-MM-dd_hh-mm-ss-tt}.tsv", DateTime.Now);
             Console.WriteLine("SETTING\t Changes log file:\t" + changesLogFile);
 
-            localZone = TimeZone.CurrentTimeZone;
+            // Set timezone
+            localZone = TimeZone.CurrentTimeZone; // TODO IS this required?
         }
 
         private static string GetFilesRootPath()
