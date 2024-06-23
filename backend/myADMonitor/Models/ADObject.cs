@@ -6,8 +6,10 @@
         public string ShortName;
         public Guid GUID;
         public string Path;
+
         public List<string> AttributeNames = new();
         public List<List<string>> AttributeValues = new();
+
         public ADObjectClass ObjectClass;
         public long USN;
         public LifeCycle ObjectLifeCycle;

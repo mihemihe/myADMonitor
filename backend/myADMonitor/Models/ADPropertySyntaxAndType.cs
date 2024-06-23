@@ -2,7 +2,7 @@
 
 namespace myADMonitor.Models
 {
-    public class ADPropertyEncoding
+    public class ADPropertySyntaxAndType
     {
         public ActiveDirectorySyntax ADSyntax { get; set; }
         public bool isSingleValued { get; set; }

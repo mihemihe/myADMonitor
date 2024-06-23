@@ -15,10 +15,9 @@ namespace myADMonitor.Helpers
         private static bool status_dBInitialized;
         private static string? LDAPConnectionString;
         private static long highestUSN;
-        private static long startingUSN;
         private static long movingUSNLower;
         private static long movingUSNUpper;
-        private static HeaderData? HeaderDataInfo = new();
+        private static readonly HeaderData? HeaderDataInfo = new();
         public static long TotalDeltas;
         private static bool status_IsDeltaRunning;
         private static string? configFilePath;
@@ -37,7 +36,6 @@ namespace myADMonitor.Helpers
             status_dBInitialized = false;
             status_IsDeltaRunning = false;            
             highestUSN = 0;
-            startingUSN = 0;
             movingUSNLower = 0;
             movingUSNUpper = 999;
             TotalDeltas = 0;
@@ -143,8 +141,7 @@ namespace myADMonitor.Helpers
             Console.WriteLine("INFO\t{0} Total pages with objects found. Starting building cache", ranges.Count);
             Console.WriteLine("INFO\tNEW SYNC start:\t" + DateTime.Now);
 
-            highestUSN = connectedDC.HighestCommittedUsn;
-            startingUSN = connectedDC.HighestCommittedUsn;
+            highestUSN = connectedDC.HighestCommittedUsn;            
             foreach (int range in ranges)
             {
                 movingUSNLower = range * 1000;
@@ -153,7 +150,7 @@ namespace myADMonitor.Helpers
                 SearchResultCollection foundObjects = LDAPUtil.LDAPSearchCollection(query, LDAPConnectionString);
                 try
                 {
-                    foreach (SearchResult searchResult in foundObjects) _metaverse.AddObjectAndChanges(searchResult);
+                    foreach (SearchResult searchResult in foundObjects) _metaverse.AddOrUpdateObject(searchResult);
                 }
                 catch (Exception ex)
                 {
@@ -222,8 +219,8 @@ namespace myADMonitor.Helpers
             HeaderDataInfo.TrackedOUs = _metaverse.CountOUs();
             HeaderDataInfo.TrackedOther = _metaverse.CountOthers();
             HeaderDataInfo.LatestUSNDetected = highestUSN;
-            HeaderDataInfo.ChangesDetected = _metaverse.Changes.Count();
-            HeaderDataInfo.ObjectsInDatabase = _metaverse.AllObjects.Count();
+            HeaderDataInfo.ChangesDetected = _metaverse.Changes.Count;
+            HeaderDataInfo.ObjectsInDatabase = _metaverse.AllObjects.Count;
         }
 
         public static void FetchDeltaChanges()
@@ -242,7 +239,7 @@ namespace myADMonitor.Helpers
                 Console.WriteLine("INFO\tFetching changes from USN range: {0} <-> {1}", nextUSN, highestUSN);
                 string query = LDAPUtil.LDAPQueryRangeGenerator(nextUSN, highestUSN);
                 SearchResultCollection foundObjects = LDAPUtil.LDAPSearchCollection(query, LDAPConnectionString);
-                foreach (SearchResult searchResult in foundObjects) _metaverse.AddObjectAndChanges(searchResult);
+                foreach (SearchResult searchResult in foundObjects) _metaverse.AddOrUpdateObject(searchResult);
                 Console.WriteLine("INFO\t{0} changed objects or new found", foundObjects.Count);
             }
             else { Console.WriteLine("INFO\t0 Changes detected"); }

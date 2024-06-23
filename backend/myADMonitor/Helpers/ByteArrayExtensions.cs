@@ -224,7 +224,7 @@ namespace myADMonitor.Helpers
             long remainingBytes = stream.Length - stream.Position;
             if (remainingBytes > int.MaxValue)
             {
-                throw new ArgumentOutOfRangeException("stream");
+                throw new ArgumentOutOfRangeException(nameof(remainingBytes));
             }
             byte[] buffer = new byte[remainingBytes];
             stream.Read(buffer, 0, (int)remainingBytes);

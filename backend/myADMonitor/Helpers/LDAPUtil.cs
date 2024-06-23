@@ -13,7 +13,7 @@ namespace myADMonitor.Helpers
     public static class LDAPUtil
     {        
         public static Dictionary<string,int> metrics = new Dictionary<string,int>();
-        public static Dictionary<string, ActiveDirectorySchemaProperty> AttributeSyntaxDecoder = new(StringComparer.InvariantCultureIgnoreCase);
+        public static Dictionary<string, ActiveDirectorySchemaProperty> SchemaAttributesCodex = new(StringComparer.InvariantCultureIgnoreCase);
 
         public static SearchResultCollection LDAPSearchCollection(string query, string ldappath)
         {
@@ -41,7 +41,7 @@ namespace myADMonitor.Helpers
             {
                 // Name is the one matching Active Directory attribute names (case does not match tho!!)
                 //Console.WriteLine(property.Name + " " + property.Syntax + " " + property.IsSingleValued);
-                AttributeSyntaxDecoder.Add(property.Name, property);
+                SchemaAttributesCodex.Add(property.Name, property);
 
             }
             // Code below to find the syntax of a particular attribute.
@@ -113,19 +113,19 @@ namespace myADMonitor.Helpers
 
         }
 
-        public static ADPropertyEncoding GetProperySyntaxSingle(string propertyName)
+        public static ADPropertySyntaxAndType GetProperySyntaxAndType(string propertyName)
         {
-            ADPropertyEncoding result = new ADPropertyEncoding();
+            ADPropertySyntaxAndType syntaxAndType = new ADPropertySyntaxAndType();
             ActiveDirectorySyntax ADSyntax;
             bool isSingleValued;
 
             //TODO: We moved this here, but later we handled the member +1500 in metaverse. This
             //      may slow down the app.
             
-            if (AttributeSyntaxDecoder.TryGetValue(propertyName, out ActiveDirectorySchemaProperty propSyntaxDetails))  //new Out C# 7
+            if (SchemaAttributesCodex.TryGetValue(propertyName, out ActiveDirectorySchemaProperty propSyntaxDetails))  //new Out C# 7
             {
                 ADSyntax = propSyntaxDetails.Syntax;
-                isSingleValued = LDAPUtil.AttributeSyntaxDecoder[propertyName].IsSingleValued;
+                isSingleValued = LDAPUtil.SchemaAttributesCodex[propertyName].IsSingleValued;
                 //Console.WriteLine("Fetched value: {0}", propSyntaxDetails);
             }
             else
@@ -153,9 +153,9 @@ namespace myADMonitor.Helpers
 
                 Console.WriteLine("No such key: {0}", propertyName);
             }
-            result.ADSyntax = ADSyntax;
-            result.isSingleValued = isSingleValued;
-            return result;
+            syntaxAndType.ADSyntax = ADSyntax;
+            syntaxAndType.isSingleValued = isSingleValued;
+            return syntaxAndType;
         }
 
         public static string LDAPQueryRangeGenerator(long lower, long upper)
@@ -163,14 +163,11 @@ namespace myADMonitor.Helpers
             return "(&(usnChanged>=" + lower + ")(usnChanged<=" + upper + ")" + DirectoryState.runConfig.LDAPQuery + ")";
         }
 
-        public static List<string> ParseAttribute(ADPropertyEncoding _syntaxMultiOrSingle2,
-            ResultPropertyValueCollection _expandedPropertiesCollection)
+        public static List<string> ParseAttribute(ADPropertySyntaxAndType syntaxAndType, ResultPropertyValueCollection _expandedPropertiesCollection)
         {
-            Tuple<ActiveDirectorySyntax, bool> _syntaxMultiOrSingle  = 
-                new Tuple<ActiveDirectorySyntax, bool>(_syntaxMultiOrSingle2.ADSyntax, _syntaxMultiOrSingle2.isSingleValued);
             List<string> __tempAttributeValues = new();
-            //metrics[_syntaxMultiOrSingle2.ADSyntax.ToString()] += 1;
-            switch (_syntaxMultiOrSingle2.ADSyntax, _syntaxMultiOrSingle2.isSingleValued)
+            
+            switch (syntaxAndType.ADSyntax, syntaxAndType.isSingleValued)
             {
                 case (ActiveDirectorySyntax.Bool, true):
                     __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString());                    

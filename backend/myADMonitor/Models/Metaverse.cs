@@ -19,9 +19,6 @@ namespace myADMonitor.Models
         public static List<string> changesLogLines;
         public static string filesPath;
 
-        // Local timestamps
-        TimeZone localZone;
-
         public Metaverse()
         {
             Console.WriteLine("----------------------------- myADMonitor 0.5.004 ----------------------------");
@@ -41,8 +38,7 @@ namespace myADMonitor.Models
             changesLogFile = filesPath + string.Format("ADCHANGES-{0:yyyy-MM-dd_hh-mm-ss-tt}.tsv", DateTime.Now);
             Console.WriteLine("SETTING\t Changes log file:\t" + changesLogFile);
 
-            // Set timezone
-            localZone = TimeZone.CurrentTimeZone; // TODO IS this required?
+
         }
 
         private static string GetFilesRootPath()
@@ -55,10 +51,11 @@ namespace myADMonitor.Models
 #endif
         }
 
-        public void AddObjectAndChanges(SearchResult _searchResult)
+        public void AddOrUpdateObject(SearchResult _searchResult)
         {
             lock (changesLock)
             {
+                // -1- Compose basic object identification attributes and a friendly name
                 bool specialCaseMember = false;
                 bool specialCasemsds_revealedusers = false;
                 Guid objectGuid = new Guid((byte[])_searchResult.Properties["objectGuid"][0]);
@@ -78,11 +75,15 @@ namespace myADMonitor.Models
                     Console.WriteLine("Neither CN nor DN" + path);
                     friendlyName = path;
                 }
-                ADObject _forge = new ADObject(objectGuid, path, dn, friendlyName);
-                // For each property in the object
+                ADObject forgeADObject = new ADObject(objectGuid, path, dn, friendlyName);
+                Console.WriteLine("");
+                Console.WriteLine(friendlyName);
+
+
+                // -2- For each property in the object
                 foreach (string propertyName in _searchResult.Properties.PropertyNames)
                 {
-                    //Console.WriteLine(propertyName);
+                    Console.WriteLine(propertyName);
                     switch (propertyName)
                     {
                         case "useraccountcontrol":
@@ -103,19 +104,19 @@ namespace myADMonitor.Models
                                     UACFlagsActive.Add(Enum.GetName(typeof(UserAccountControl), flagDetector));
                                 }
                             }
-                            _forge.AddAttribute(propertyName, UACFlagsActive);
+                            forgeADObject.AddAttribute(propertyName, UACFlagsActive);
                             break;
 
                         case "usnchanged":
 
-                            _forge.USN = (long)_searchResult.Properties[propertyName][0];
+                            forgeADObject.USN = (long)_searchResult.Properties[propertyName][0];
 
                             //  Console.WriteLine(_forge.USN + "  <=> TOP USN: " + DirectoryState.GetCurrentUSN());
 
                             break;
 
                         case "objectclass":
-                            _forge.ObjectClass = LDAPUtil.GetClass(_searchResult.Properties[propertyName]);
+                            forgeADObject.ObjectClass = LDAPUtil.GetClass(_searchResult.Properties[propertyName]);
                             break;
 
                         case "adspath":
@@ -125,7 +126,7 @@ namespace myADMonitor.Models
                             specialCaseMember = true;
                             Console.WriteLine("WARNING:\tLarge member attribute detected +1500 members." + propertyName);
                             var allValues = LDAPUtil.EnumerateLargeProperty(_searchResult.Properties["adspath"][0].ToString(), "member");
-                            _forge.AddAttribute("memberComplete", allValues);
+                            forgeADObject.AddAttribute("memberComplete", allValues);
 
                             // SPECIAL CASE GROUP +1500 members
                             // Generated a new ParsedAttributeValues for propery member
@@ -138,14 +139,14 @@ namespace myADMonitor.Models
                             var allValues2 = LDAPUtil.EnumerateLargeProperty(
                                 _searchResult.Properties["adspath"][0].ToString(),
                                 "msds-revealedusers");
-                            _forge.AddAttribute("msds-revealedusersComplete", allValues2);
+                            forgeADObject.AddAttribute("msds-revealedusersComplete", allValues2);
                             break;
 
                         default:
                             ResultPropertyValueCollection expandedAttribute = _searchResult.Properties[propertyName];
-                            var syntaxMultiCombo = LDAPUtil.GetProperySyntaxSingle(propertyName);
-                            List<string> ParsedAttributeValues = LDAPUtil.ParseAttribute(syntaxMultiCombo, expandedAttribute);
-                            _forge.AddAttribute(propertyName, ParsedAttributeValues);
+                            ADPropertySyntaxAndType attributeSyntaxAndType = LDAPUtil.GetProperySyntaxAndType(propertyName);
+                            List<string> ParsedAttributeValues = LDAPUtil.ParseAttribute(attributeSyntaxAndType, expandedAttribute);
+                            forgeADObject.AddAttribute(propertyName, ParsedAttributeValues);
                             break;
                     }
                 }// END PROPERTIES ITERATION
@@ -153,19 +154,19 @@ namespace myADMonitor.Models
                 //TODO: Refactor duplicated code. There may be even more.
                 if (specialCaseMember == true)
                 {
-                    int position = _forge.AttributeNames.IndexOf("member");
-                    _forge.AttributeNames.RemoveAt(position);
-                    _forge.AttributeValues.RemoveAt(position);
-                    int position2 = _forge.AttributeNames.IndexOf("memberComplete");
-                    _forge.AttributeNames[position2] = "member";
+                    int position = forgeADObject.AttributeNames.IndexOf("member");
+                    forgeADObject.AttributeNames.RemoveAt(position);
+                    forgeADObject.AttributeValues.RemoveAt(position);
+                    int position2 = forgeADObject.AttributeNames.IndexOf("memberComplete");
+                    forgeADObject.AttributeNames[position2] = "member";
                 }
                 if (specialCasemsds_revealedusers == true)
                 {
-                    int position = _forge.AttributeNames.IndexOf("msds-revealedusers");
-                    _forge.AttributeNames.RemoveAt(position);
-                    _forge.AttributeValues.RemoveAt(position);
-                    int position2 = _forge.AttributeNames.IndexOf("msds-revealedusersComplete");
-                    _forge.AttributeNames[position2] = "msds-revealedusers";
+                    int position = forgeADObject.AttributeNames.IndexOf("msds-revealedusers");
+                    forgeADObject.AttributeNames.RemoveAt(position);
+                    forgeADObject.AttributeValues.RemoveAt(position);
+                    int position2 = forgeADObject.AttributeNames.IndexOf("msds-revealedusersComplete");
+                    forgeADObject.AttributeNames[position2] = "msds-revealedusers";
                 }
 
                 //Console.WriteLine(objectGuid);
@@ -181,7 +182,7 @@ namespace myADMonitor.Models
                     // For removed > create change from oldValue to <not set>. type FromChange
                     // For common > Iterate, compare, and create change for updated from oldValue to newValue.
 
-                    List<string> NewAttributesList = _forge.AttributeNames;
+                    List<string> NewAttributesList = forgeADObject.AttributeNames;
                     List<string> OldAttributeList = AllObjects[objectGuid].AttributeNames;
 
                     var newAttributes = NewAttributesList.Except(OldAttributeList, StringComparer.OrdinalIgnoreCase);
@@ -193,13 +194,13 @@ namespace myADMonitor.Models
                         var a = objectGuid;
                         var b = newAttribute;
                         var c = new List<string>();
-                        var d = _forge.AttributeValues[_forge.AttributeNames.IndexOf(newAttribute)];
+                        var d = forgeADObject.AttributeValues[forgeADObject.AttributeNames.IndexOf(newAttribute)];
                         var e = DateTime.Now;
-                        var f = _forge.AttributeValues[_forge.AttributeNames.IndexOf("whenchanged")][0];
-                        var g = _forge.USN;
-                        var h = LDAPUtil.GetProperySyntaxSingle(newAttribute).isSingleValued;
+                        var f = forgeADObject.AttributeValues[forgeADObject.AttributeNames.IndexOf("whenchanged")][0];
+                        var g = forgeADObject.USN;
+                        var h = LDAPUtil.GetProperySyntaxAndType(newAttribute).isSingleValued;
                         var i = FromNewOrFromChange.FROM_CHANGE;
-                        Change _change = new Change(a, b, c, d, e, f, g, h, i, friendlyName, _forge.ObjectClass);
+                        Change _change = new Change(a, b, c, d, e, f, g, h, i, friendlyName, forgeADObject.ObjectClass);
                         Changes.Add(_change);
                         AddToFileCollection(c, d, _change); //TODO: For MAF remove this
                     }
@@ -211,11 +212,11 @@ namespace myADMonitor.Models
                         var c = AllObjects[objectGuid].AttributeValues[AllObjects[objectGuid].AttributeNames.IndexOf(emptiedAttribute)];
                         var d = new List<string>();
                         var e = DateTime.Now;
-                        var f = _forge.AttributeValues[_forge.AttributeNames.IndexOf("whenchanged")][0];
-                        var g = _forge.USN;
-                        var h = LDAPUtil.GetProperySyntaxSingle(emptiedAttribute).isSingleValued;
+                        var f = forgeADObject.AttributeValues[forgeADObject.AttributeNames.IndexOf("whenchanged")][0];
+                        var g = forgeADObject.USN;
+                        var h = LDAPUtil.GetProperySyntaxAndType(emptiedAttribute).isSingleValued;
                         var i = FromNewOrFromChange.FROM_CHANGE;
-                        Change _change = new Change(a, b, c, d, e, f, g, h, i, friendlyName, _forge.ObjectClass);
+                        Change _change = new Change(a, b, c, d, e, f, g, h, i, friendlyName, forgeADObject.ObjectClass);
                         Changes.Add(_change);
                         AddToFileCollection(c, d, _change); //TODO: For MAF remove this
                     }
@@ -223,21 +224,21 @@ namespace myADMonitor.Models
                     foreach (var commonAttribute in commonAttributes)
                     {
                         List<string> oldValues = AllObjects[objectGuid].AttributeValues[AllObjects[objectGuid].AttributeNames.IndexOf(commonAttribute)];
-                        List<string> newValues = _forge.AttributeValues[_forge.AttributeNames.IndexOf(commonAttribute)];
+                        List<string> newValues = forgeADObject.AttributeValues[forgeADObject.AttributeNames.IndexOf(commonAttribute)];
                         // Common attribute but now different value
-                        if (!oldValues.SequenceEqual(newValues))
+                        if (!oldValues.SequenceEqual(newValues))  //TODO: The order of the items alter the equality comparasion
                         {
                             var a = objectGuid;
                             var b = commonAttribute;
                             var c = AllObjects[objectGuid].AttributeValues[AllObjects[objectGuid].AttributeNames.IndexOf(commonAttribute)];
-                            var d = _forge.AttributeValues[_forge.AttributeNames.IndexOf(commonAttribute)];
+                            var d = forgeADObject.AttributeValues[forgeADObject.AttributeNames.IndexOf(commonAttribute)];
                             var e = DateTime.Now;
-                            var f = _forge.AttributeValues[_forge.AttributeNames.IndexOf("whenchanged")][0];
-                            var g = _forge.USN;
+                            var f = forgeADObject.AttributeValues[forgeADObject.AttributeNames.IndexOf("whenchanged")][0];
+                            var g = forgeADObject.USN;
                             //var h = LDAPUtil.AttributeSyntaxDecoder[commonAttribute].IsSingleValued;
-                            var h = LDAPUtil.GetProperySyntaxSingle(commonAttribute).isSingleValued;
+                            var h = LDAPUtil.GetProperySyntaxAndType(commonAttribute).isSingleValued;
                             var i = FromNewOrFromChange.FROM_CHANGE;
-                            Change _change = new Change(a, b, c, d, e, f, g, h, i, friendlyName, _forge.ObjectClass);
+                            Change _change = new Change(a, b, c, d, e, f, g, h, i, friendlyName, forgeADObject.ObjectClass);
                             Changes.Add(_change);
                             AddToFileCollection(c, d, _change); //TODO: For MAF remove this
                         }
@@ -245,14 +246,14 @@ namespace myADMonitor.Models
 
                     //Replace entry in the cache
                     AllObjects.Remove(objectGuid);
-                    AllObjects.Add(objectGuid, _forge);
+                    AllObjects.Add(objectGuid, forgeADObject);
 
                     //columnsNotInSecond = firstHeaders.Except(secondHeaders).ToList();
                     //remainGUIDs.IntersectWith(secondGUIDs);
                 }
                 else
                 {
-                    AllObjects.Add(objectGuid, _forge);
+                    AllObjects.Add(objectGuid, forgeADObject);
                     if (DirectoryState.GetDBInitialized() == false)
                     {
                         AllObjects[objectGuid].SetLifeCycle(LifeCycle.INITIAL);
@@ -265,13 +266,13 @@ namespace myADMonitor.Models
                             var a = objectGuid;
                             var b = newAttribute;
                             var c = new List<string>();
-                            var d = _forge.AttributeValues[_forge.AttributeNames.IndexOf(newAttribute)];
+                            var d = forgeADObject.AttributeValues[forgeADObject.AttributeNames.IndexOf(newAttribute)];
                             var e = DateTime.Now;
-                            var f = _forge.AttributeValues[_forge.AttributeNames.IndexOf("whenchanged")][0];
-                            var g = _forge.USN;
-                            var h = LDAPUtil.GetProperySyntaxSingle(newAttribute).isSingleValued;
+                            var f = forgeADObject.AttributeValues[forgeADObject.AttributeNames.IndexOf("whenchanged")][0];
+                            var g = forgeADObject.USN;
+                            var h = LDAPUtil.GetProperySyntaxAndType(newAttribute).isSingleValued;
                             var i = FromNewOrFromChange.FROM_NEW;
-                            Change _change = new Change(a, b, c, d, e, f, g, h, i, friendlyName, _forge.ObjectClass);
+                            Change _change = new Change(a, b, c, d, e, f, g, h, i, friendlyName, forgeADObject.ObjectClass);
                             Changes.Add(_change);
                         }
                     }

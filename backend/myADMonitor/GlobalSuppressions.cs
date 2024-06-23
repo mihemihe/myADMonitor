@@ -5,7 +5,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-//[assembly: SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "This will run just on Windows", Scope = "module")]
-//[assembly: SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible", Justification = "<Pending>", Scope = "module")]
+[assembly: SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "This will run just on Windows", Scope = "module")]
+[assembly: SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible", Justification = "I will convert them to properties later", Scope = "module")]
 
 
