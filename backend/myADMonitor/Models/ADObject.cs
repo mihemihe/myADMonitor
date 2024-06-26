@@ -21,7 +21,6 @@
             DN = dn;
             ShortName = shortname;
 
-            //TODO: Parse the incoming objets and create the dictionary
         }
 
         public void AddAttribute(string name, List<string> value)
@@ -37,6 +36,7 @@
 
         public void RemoveEmptyMember()
         {
+            //TODO
         }
     }
 
