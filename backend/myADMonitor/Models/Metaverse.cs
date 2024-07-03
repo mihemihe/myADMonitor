@@ -76,14 +76,14 @@ namespace myADMonitor.Models
                     friendlyName = path;
                 }
                 ADObject forgedADObject = new ADObject(objectGuid, path, dn, friendlyName);
-                Console.WriteLine("");
-                Console.WriteLine(friendlyName);
+                //Console.WriteLine("");
+                //Console.WriteLine(friendlyName);
 
 
                 // -2- For each property in the object...
                 foreach (string propertyName in _searchResult.Properties.PropertyNames)
                 {
-                    Console.WriteLine(propertyName);
+                    //Console.WriteLine(propertyName);
                     switch (propertyName)
                     {
                         case "useraccountcontrol":
@@ -244,6 +244,7 @@ namespace myADMonitor.Models
                 }
                 else
                 {
+                    //TODO: NEw users are not logged on the file
                     //If it was part of the searchResult, and did NOT exist in the metaverse, is a new object to add to the metaverse, either created or first sync
                     // We set below the LifeCycle status (either NEW or INITIAL) and if new, we track all new attributes as changes
                     AllObjects.Add(objectGuid, forgedADObject);
@@ -268,6 +269,7 @@ namespace myADMonitor.Models
                             var _fromNewOrFromChange = FromNewOrFromChange.FROM_NEW;
                             Change _change = new Change(_guid, _newAttribute, _fromEmptyOldValues, _newValues, _whenDetected, _whenChanged, _currentUSN, _singleOrMulti, _fromNewOrFromChange, friendlyName, forgedADObject.ObjectClass);
                             Changes.Add(_change);
+                            AddToFileCollection(_fromEmptyOldValues, _newValues, _change);
                         }
                     }
                 }
