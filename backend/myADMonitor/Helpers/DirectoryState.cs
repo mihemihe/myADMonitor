@@ -358,8 +358,14 @@ namespace myADMonitor.Helpers
         {
             return HeaderDataInfo;
         }
+
+        internal static GuidChangesAggregated[] RetrieveListAllChangesByObjectClass(string objectClasses)
+        {
+            return _metaverse.ListAllChangesByObjectClass(objectClasses);
+        }
     }
 }
 
 //TODO: explore the tombstone on DirectorySearcher to track deleted objects
 //TODO: explore AttributeScopeQuery  to search by members for groups
+//TODO: Add identification of other classes, such as the ones when you add a RODC

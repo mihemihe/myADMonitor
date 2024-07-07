@@ -435,6 +435,26 @@ namespace myADMonitor.Models
             //return array;
         }
 
+        public GuidChangesAggregated[] ListAllChangesByObjectClass(string objectClasses)
+        {
+            List<GuidChangesAggregated> result = new List<GuidChangesAggregated>();
+            var objectClassesArray = objectClasses.Split(',');
+            lock (changesLock)
+            {
+                // call GuidChangesAggregated[] ListAllChanges3()
+                // filter by objectClasses
+                var allChanges = ListAllChanges3();
+                foreach (var item in allChanges)
+                {
+                    if (objectClassesArray.Contains(item.ObjectClass))
+                    {
+                        result.Add(item);
+                    }
+                }
+            }
+            return result.ToArray();
+        }
+
         public int CountUsers()
         {
             int countUsers = AllObjects.Values.Where(x => x.ObjectClass == ADObjectClass.USER).Count();
@@ -474,3 +494,4 @@ namespace myADMonitor.Models
 }
 
 //TODO: Monitor DN for not changed accounts. This is very interesting scenario. If you move a container the objects inside get new DN but no change registered by AD
+//TODO: Clasify the interOrgPerson not as user
