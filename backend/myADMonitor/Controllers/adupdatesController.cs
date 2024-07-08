@@ -73,6 +73,21 @@ namespace myADMonitor.Controllers
             
         }
 
+        [HttpGet("get-changes")]
+        public ActionResult<GuidChangesAggregated[]> GetChanges([FromQuery] string? objectclass, [FromQuery] string? textFilter, [FromQuery] string? attributeFilter, [FromQuery] string? showOnlyFilteredAttribute)
+        {
+
+
+
+
+            return DirectoryState.RetrieveListChangesApplyAllFilters(objectclass, textFilter, attributeFilter, showOnlyFilteredAttribute);
+
+
+
+        }
+        
+
+
 
 
 

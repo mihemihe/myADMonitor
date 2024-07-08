@@ -359,10 +359,17 @@ namespace myADMonitor.Helpers
             return HeaderDataInfo;
         }
 
-        internal static GuidChangesAggregated[] RetrieveListAllChangesByObjectClass(string objectClasses)
+        public static GuidChangesAggregated[] RetrieveListAllChangesByObjectClass(string objectClasses)
         {
             return _metaverse.ListAllChangesByObjectClass(objectClasses);
         }
+
+        public static GuidChangesAggregated[] RetrieveListChangesApplyAllFilters(string objectClasses, string nameFilter, string attributeFilter, string showOnlyFilteredAttribute)
+        {
+            return _metaverse.ListChangesApplyAllFilters(objectClasses, nameFilter, attributeFilter, showOnlyFilteredAttribute);
+        }
+
+
     }
 }
 
