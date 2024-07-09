@@ -461,13 +461,13 @@ namespace myADMonitor.Models
         //textFilter=a
         //attributeFilter=a
         //showOnlyFilteredAttribute=true
-        public GuidChangesAggregated[]  ListChangesApplyAllFilters(string? objectClasses, string? nameFilter, string? attributeFilter, string? showOnlyFilteredAttribute)
+        public GuidChangesAggregated[]  ListChangesApplyAllFilters(string? objectClasses, string? objectNameFilter, string? attributeFilter, string? showOnlyFilteredAttribute)
         {
             List<GuidChangesAggregated> result = new List<GuidChangesAggregated>();
             string[] objectClassesArray = [];
-            string nameFilterFinal = nameFilter ?? "";
+            string nameFilterFinal = objectNameFilter ?? "";
             string attributeFilterFinal = attributeFilter ?? "";
-            bool onlyShowFilteredAttributes = showOnlyFilteredAttribute == "true";
+            bool showOnlyFilteredAttributeFinal = showOnlyFilteredAttribute == "true";
 
             bool filterByObjectClasses = false;
             bool filterByName = false;
@@ -475,7 +475,7 @@ namespace myADMonitor.Models
             
 
 
-            if (string.IsNullOrEmpty(objectClasses) && string.IsNullOrEmpty(nameFilter) && string.IsNullOrEmpty(attributeFilter))
+            if (string.IsNullOrEmpty(objectClasses) && string.IsNullOrEmpty(objectNameFilter) && string.IsNullOrEmpty(attributeFilter))
             {
                 // Return all changes from ListAllChanges3()
                 return result.ToArray();
@@ -486,7 +486,7 @@ namespace myADMonitor.Models
                 filterByObjectClasses = true;
                 objectClassesArray = objectClasses.Split(',');
             }
-            if(!string.IsNullOrEmpty(nameFilter))
+            if(!string.IsNullOrEmpty(objectNameFilter)) //TODO: Double check if I need to use objectNameFilter or the final version on these 3 ifs
             {
                 filterByName = true;
             }
@@ -512,7 +512,7 @@ namespace myADMonitor.Models
                 if (filterByAttribute)
                 {
                     allChanges = allChanges.Where(c => c.ChangeCompactAttributes.Any(a => a.AttributeName.IndexOf(attributeFilterFinal, StringComparison.OrdinalIgnoreCase) >= 0)).ToArray();
-                    if(onlyShowFilteredAttributes)
+                    if(showOnlyFilteredAttributeFinal)
                     {
 
                         for (int i = 0; i < allChanges.Length; i++)

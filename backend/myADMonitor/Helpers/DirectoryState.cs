@@ -364,9 +364,9 @@ namespace myADMonitor.Helpers
             return _metaverse.ListAllChangesByObjectClass(objectClasses);
         }
 
-        public static GuidChangesAggregated[] RetrieveListChangesApplyAllFilters(string objectClasses, string nameFilter, string attributeFilter, string showOnlyFilteredAttribute)
+        public static GuidChangesAggregated[] RetrieveListChangesApplyAllFilters(string objectClasses, string objectNameFilter, string attributeFilter, string showOnlyFilteredAttribute)
         {
-            return _metaverse.ListChangesApplyAllFilters(objectClasses, nameFilter, attributeFilter, showOnlyFilteredAttribute);
+            return _metaverse.ListChangesApplyAllFilters(objectClasses, objectNameFilter, attributeFilter, showOnlyFilteredAttribute);
         }
 
 

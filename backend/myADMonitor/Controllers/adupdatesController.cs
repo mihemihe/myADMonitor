@@ -67,29 +67,19 @@ namespace myADMonitor.Controllers
         public ActionResult<GuidChangesAggregated[]> GetChangesByObjectClass([FromQuery] string objectclass)
         {
             // Call a method to retrieve changes for objects of the specified class(es)
-            
-            return DirectoryState.RetrieveListAllChangesByObjectClass(objectclass);
 
-            
+            return DirectoryState.RetrieveListAllChangesByObjectClass(objectclass);
         }
 
         [HttpGet("get-changes")]
-        public ActionResult<GuidChangesAggregated[]> GetChanges([FromQuery] string? objectclass, [FromQuery] string? textFilter, [FromQuery] string? attributeFilter, [FromQuery] string? showOnlyFilteredAttribute)
+        public ActionResult<GuidChangesAggregated[]> GetChanges([FromQuery] string? objectclass, [FromQuery] string? objectnamefilter, [FromQuery] string? attributefilter, [FromQuery] string? showonlyfilteredattribute)
         {
+            objectclass ??= string.Empty;
+            objectnamefilter ??= string.Empty;
+            attributefilter ??= string.Empty;
+            showonlyfilteredattribute ??= "true";
 
-
-
-
-            return DirectoryState.RetrieveListChangesApplyAllFilters(objectclass, textFilter, attributeFilter, showOnlyFilteredAttribute);
-
-
-
+            return DirectoryState.RetrieveListChangesApplyAllFilters(objectclass, objectnamefilter, attributefilter, showonlyfilteredattribute);
         }
-        
-
-
-
-
-
     }
 }
