@@ -455,6 +455,12 @@ namespace myADMonitor.Models
             return result.ToArray();
         }
 
+        //http://localhost:5000/api/v1/adupdates/get-changes?objectclass=USER&textFilter=a&attributeFilter=a&showOnlyFilteredAttribute=true
+        //http://localhost:5000/api/v1/adupdates/get-changes?objectclass=USER%2CGROUP%2CCONTACT%2CCOMPUTER%2COU%2CUNKNOWN&textFilter=dddddd&attributeFilter=ddddd&showOnlyFilteredAttribute=true
+        //objectclass=USER,COMPUTER,CONTACT,GROUP,OU,UNKNOWN
+        //textFilter=a
+        //attributeFilter=a
+        //showOnlyFilteredAttribute=true
         public GuidChangesAggregated[]  ListChangesApplyAllFilters(string? objectClasses, string? nameFilter, string? attributeFilter, string? showOnlyFilteredAttribute)
         {
             List<GuidChangesAggregated> result = new List<GuidChangesAggregated>();
@@ -472,7 +478,7 @@ namespace myADMonitor.Models
             if (string.IsNullOrEmpty(objectClasses) && string.IsNullOrEmpty(nameFilter) && string.IsNullOrEmpty(attributeFilter))
             {
                 // Return all changes from ListAllChanges3()
-                return ListAllChanges3();
+                return result.ToArray();
             }
             
             if(!string.IsNullOrEmpty(objectClasses))
@@ -495,33 +501,24 @@ namespace myADMonitor.Models
                 // if filterByObjectClasses is true, remove from allChanges the ones that are not in objectClassesArray
                 if(filterByObjectClasses)
                 {
-                    Console.WriteLine(allChanges.Length);
                     allChanges = allChanges.Where(c => objectClassesArray.Contains(c.ObjectClass)).ToArray();
-                    Console.WriteLine(allChanges.Length);
                 }
                 // if filterByName is true, remove from allChanges the ones that do not contain nameFilterFinal
                 if (filterByName)
                 {
-                    Console.WriteLine(allChanges.Length);
                     allChanges = allChanges.Where(c => c.FriendlyName.IndexOf(nameFilterFinal, StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
-                    Console.WriteLine(allChanges.Length);
                 }
                 // if filterByAttribute is true, remove from allChanges the ones that do not contain attributeFilterFinal
                 if (filterByAttribute)
                 {
-                    Console.WriteLine(allChanges.Length);
                     allChanges = allChanges.Where(c => c.ChangeCompactAttributes.Any(a => a.AttributeName.IndexOf(attributeFilterFinal, StringComparison.OrdinalIgnoreCase) >= 0)).ToArray();
-                    Console.WriteLine(allChanges.Length);
-
                     if(onlyShowFilteredAttributes)
                     {
 
                         for (int i = 0; i < allChanges.Length; i++)
                         {
-                            var change = allChanges[i];
-                            Console.WriteLine("atfilter count before: " + change.ChangeCompactAttributes.Count);
+                            var change = allChanges[i];                            
                             change.ChangeCompactAttributes = change.ChangeCompactAttributes.Where(a => a.AttributeName.IndexOf(attributeFilterFinal, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
-                            Console.WriteLine("atfilter count after: " + change.ChangeCompactAttributes.Count);
                         }
                     }
                 }

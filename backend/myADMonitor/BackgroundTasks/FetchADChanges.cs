@@ -10,7 +10,7 @@ namespace myADMonitor.BackgroundTasks
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    Console.WriteLine("\r\n--------- START ------------------");
+                    Console.WriteLine("\r\n--------- STARTING DELTA: " + DirectoryState.TotalDeltas +  "------------------");
 
                     if (DirectoryState.GetDBInitialized() == false)
                     {
