@@ -107,7 +107,7 @@ namespace myADMonitor.Helpers
 
             // Retrieve AD Schema syntaxes
             Console.WriteLine("INFO\tEnumerating AD attributes and their syntaxes");
-            Console.WriteLine("INFO\tSchema syntaxes start:\t" + DateTime.Now);
+            Console.WriteLine("INFO\tSchema syntaxes start:\t\t" + DateTime.Now);
             LDAPUtil.InitAttributeSyntaxTable();
             Console.WriteLine("INFO\tSchema syntaxes completed:\t" + DateTime.Now);
 
@@ -117,6 +117,8 @@ namespace myADMonitor.Helpers
 
             // Starting new sync strategy. Raw USN combing is slow in some environments
             #region NEW SYNC EXECUTION
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
 
             Console.WriteLine("INFO\tFinding highest USN...");
             Console.WriteLine("INFO\tExcluding query pages without objects.. Please wait.");
@@ -139,11 +141,17 @@ namespace myADMonitor.Helpers
             Console.WriteLine("INFO\t{0} Total USNs found", usns.Count);
             List<int> ranges = ExtractPopulatedRanges(usns);
             Console.WriteLine("INFO\t{0} Total pages with objects found. Starting building cache", ranges.Count);
+            stopwatch.Stop();
+            Console.WriteLine("INFO\tUSN extraction and range calculation took: {0} seconds", stopwatch.ElapsedMilliseconds / 1000);
+            stopwatch.Reset();
+            stopwatch.Start();
             Console.WriteLine("INFO\tNEW SYNC start:\t" + DateTime.Now);
 
             highestUSN = connectedDC.HighestCommittedUsn;            
             foreach (int range in ranges)
             {
+                var innerStopWatch = new System.Diagnostics.Stopwatch();
+                innerStopWatch.Start();
                 movingUSNLower = range * 1000;
                 movingUSNUpper = movingUSNLower + 999;
                 string query = LDAPUtil.LDAPQueryRangeGenerator(movingUSNLower, movingUSNUpper);
@@ -162,18 +170,30 @@ namespace myADMonitor.Helpers
                     throw;
                 }
                 int foundObjectsCount = foundObjects.Count;
-                highestUSN = connectedDC.HighestCommittedUsn;
-                Console.WriteLine("INFO\tRange {0} < {1}\t\tFound {2} objects in this range", movingUSNLower, movingUSNUpper, foundObjectsCount);
-
-            }
-            #endregion NEW SYNC EXECUTION
+                highestUSN = connectedDC.HighestCommittedUsn;                
+                innerStopWatch.Stop();                
+                double rate;
+                int intRate;
+                if (innerStopWatch.ElapsedMilliseconds > 0)
+                {
+                    rate = (double)foundObjectsCount * (1000f / innerStopWatch.ElapsedMilliseconds);                    
+                    intRate = (int)rate;
+                }
+                else
+                {
+                    intRate = 0; 
+                }
+                Console.WriteLine("INFO\tRange {0} <> {1}\t\tFound {2}\t objects in this range ({3} ms\t| {4} objects/sec aprox.)", movingUSNLower, movingUSNUpper, foundObjectsCount, innerStopWatch.ElapsedMilliseconds, intRate);
+                
+            }           
 
             status_dBInitialized = true;
 
-
-
             Console.WriteLine("INFO\tNEW SYNC Complete:\t" + DateTime.Now);
-
+            stopwatch.Stop();
+            Console.WriteLine("INFO\tNEW SYNC took: {0} seconds", stopwatch.ElapsedMilliseconds / 1000);
+            
+            #endregion NEW SYNC EXECUTION
 
             HeaderDataInfo.DomainName = DomainNameFQDN;
             HeaderDataInfo.DomainControllerFQDN = connectedDC.Name;
@@ -266,6 +286,7 @@ namespace myADMonitor.Helpers
             {
                 try
                 {
+                    //TODO: this is too clever, if it is not reachable it will catch an exception and continue to the next one
                     Console.WriteLine("SETTING\t Domain Controller FQDN:\t" + dc.Name);
                     Console.WriteLine("SETTING\t AD Site:\t" + dc.SiteName);
                     return dc;
