@@ -10,14 +10,13 @@ namespace myADMonitor.Models
         public Dictionary<Guid, ADObject> AllObjects;
         public List<string> ModifiedObjects;
         public List<Change> Changes;
-        private List<string> attributesToIgnore;
+        private readonly List<string> attributesToIgnore;
         private readonly object changesLock = new object();
 
         // MAF
-        public static string changesLogFile;
-
-        public static List<string> changesLogLines;
-        public static string filesPath;
+        public string changesLogFile;
+        public List<string> changesLogLines;
+        public string filesPath;
 
         public Metaverse()
         {
@@ -31,7 +30,7 @@ namespace myADMonitor.Models
 
             // Set attributes to ignore
             attributesToIgnore = new List<string>() { "msds-revealedusers" }; //TODO: Enhancement, test the solution work for this attribute for RDOC
-
+            //TODO: Right now attributesToIgnore is not used, but it could be used to avoid logging some attributes
             // Initialize logging 
             changesLogLines = new List<string>();
             filesPath = GetFilesRootPath();
@@ -41,7 +40,7 @@ namespace myADMonitor.Models
 
         }
 
-        private static string GetFilesRootPath()
+        private string GetFilesRootPath()
         {
 #if DEBUG
             return @"C:\Misc\myadmonitorlog\";
@@ -101,7 +100,8 @@ namespace myADMonitor.Models
                                 if (flagDetector > 0)
                                 {
                                     //Console.WriteLine(Enum.GetName(typeof(UserAccountControl), flagDetector));
-                                    UACFlagsActiveAsStrings.Add(Enum.GetName(typeof(UserAccountControl), flagDetector));
+                                    //UACFlagsActiveAsStrings.Add(Enum.GetName(typeof(UserAccountControl), flagDetector));
+                                    UACFlagsActiveAsStrings.Add(Enum.GetName(typeof(UserAccountControl), flagDetector) ?? "ERROR_DETECTING_USERACCOUNTCONTROL_FLAG " + flagDetector.ToString());
                                 }
                             }
                             forgedADObject.AddAttribute(propertyName, UACFlagsActiveAsStrings);
@@ -125,7 +125,7 @@ namespace myADMonitor.Models
                         case "member;range=0-1499": //TODO: change this to something more generic, old AD maybe different
                             specialCaseMember = true;
                             Console.WriteLine("WARNING:\tLarge member attribute detected +1500 members." + propertyName);
-                            var allValues = LDAPUtil.EnumerateLargeProperty(_searchResult.Properties["adspath"][0].ToString(), "member");
+                            var allValues = LDAPUtil.EnumerateLargeProperty(_searchResult.Properties["adspath"][0].ToString()!, "member");
                             forgedADObject.AddAttribute("memberComplete", allValues);
 
                             // SPECIAL CASE GROUP +1500 members
@@ -137,7 +137,7 @@ namespace myADMonitor.Models
                             specialCasemsds_revealedusers = true;
                             Console.WriteLine("WARNING:\tLarge msds-revealedusers attribute detected +1500 members." + propertyName);
                             var allValues2 = LDAPUtil.EnumerateLargeProperty(
-                                _searchResult.Properties["adspath"][0].ToString(),
+                                _searchResult.Properties["adspath"][0].ToString()!,
                                 "msds-revealedusers");
                             forgedADObject.AddAttribute("msds-revealedusersComplete", allValues2);
                             break;
@@ -173,10 +173,10 @@ namespace myADMonitor.Models
 
                 // -4- check if the objects is in the metaverse, and add/remove/update attributes from the change happening.... Update by replacing the metaverse object
                 // TODO: Change to TryGetValue for huge gains and avoid double lookup
-                if (AllObjects.ContainsKey(objectGuid))
+                if (AllObjects.TryGetValue(objectGuid, out ADObject? value))
                 {
                     // Old attributes & new attributes >>> Compute lists of new, empited and common attributes
-                    List<string> OldAttributeList = AllObjects[objectGuid].AttributeNames;
+                    List<string> OldAttributeList = value.AttributeNames;
                     List<string> NewAttributesList = forgedADObject.AttributeNames;
                     var newAttributes = NewAttributesList.Except(OldAttributeList, StringComparer.OrdinalIgnoreCase);
                     var emptiedAttributes = OldAttributeList.Except(NewAttributesList, StringComparer.OrdinalIgnoreCase);
@@ -203,7 +203,7 @@ namespace myADMonitor.Models
                     {
                         var _guid = objectGuid;
                         var _emptiedAttribute = emptiedAttribute;
-                        var _oldValues = AllObjects[objectGuid].AttributeValues[AllObjects[objectGuid].AttributeNames.IndexOf(emptiedAttribute)];
+                        var _oldValues = value.AttributeValues[value.AttributeNames.IndexOf(emptiedAttribute)];
                         var _NewValuesEmpty = new List<string>(); // New values is just the attribute empty
                         var _whenDetected = DateTime.Now;
                         var _whenChanged = forgedADObject.AttributeValues[forgedADObject.AttributeNames.IndexOf("whenchanged")][0];
@@ -217,14 +217,14 @@ namespace myADMonitor.Models
                     // -5c- Update attributes changed on the object...
                     foreach (var commonAttribute in commonAttributes)
                     {
-                        List<string> oldValues = AllObjects[objectGuid].AttributeValues[AllObjects[objectGuid].AttributeNames.IndexOf(commonAttribute)];
+                        List<string> oldValues = value.AttributeValues[value.AttributeNames.IndexOf(commonAttribute)];
                         List<string> newValues = forgedADObject.AttributeValues[forgedADObject.AttributeNames.IndexOf(commonAttribute)];
                         // Common attribute but now different value
                         if (!oldValues.SequenceEqual(newValues))  //TODO: The order of the items alter the equality comparasion. Need to sort first here or somewhere else
                         {
                             var _guid = objectGuid;
                             var _commonAttribute = commonAttribute;
-                            var _oldValues = AllObjects[objectGuid].AttributeValues[AllObjects[objectGuid].AttributeNames.IndexOf(commonAttribute)];
+                            var _oldValues = value.AttributeValues[value.AttributeNames.IndexOf(commonAttribute)];
                             var _newValues = forgedADObject.AttributeValues[forgedADObject.AttributeNames.IndexOf(commonAttribute)];
                             var _whenDetected = DateTime.Now;
                             var _whenChanged = forgedADObject.AttributeValues[forgedADObject.AttributeNames.IndexOf("whenchanged")][0];
@@ -277,7 +277,7 @@ namespace myADMonitor.Models
             // TODO: Detect deleted items
         } // END AddOrUpdateObject method
 
-        private static void AddToFileCollection(List<string> c, List<string> d, Change _change)
+        private void AddToFileCollection(List<string> c, List<string> d, Change _change)
         {
             //TODO: Added a quick file logger for MAF issue. Remove this or improve it.
             //TODO: Detect tabs on the attributes because TSV
@@ -298,8 +298,8 @@ namespace myADMonitor.Models
 
             string outputline = _change.FriendlyName + "\t" + _change.AttributeName + "\t" + oldvvv + "\t" + newvvv;
 
-            using (StreamWriter sw = File.AppendText(changesLogFile)) { sw.WriteLine(outputline); }
-            //changesLogLines.Add(_change. + "\t" + _change.AttributeName + "\t" + oldvvv + "\t" + newvvv); //TODO: Save periodically using this collection
+            using StreamWriter sw = File.AppendText(changesLogFile);
+            sw.WriteLine(outputline);             //changesLogLines.Add(_change. + "\t" + _change.AttributeName + "\t" + oldvvv + "\t" + newvvv); //TODO: Save periodically using this collection
 
         }
 
@@ -339,8 +339,10 @@ namespace myADMonitor.Models
             {
                 if (item.Value.ObjectClass == ADObjectClass.USER)
                 {
-                    UserDTO _tempUserDTO = new UserDTO();
-                    _tempUserDTO.guid = item.Key.ToString();
+                    UserDTO _tempUserDTO = new UserDTO
+                    {
+                        guid = item.Key.ToString()
+                    };
                     var attributeNames = item.Value.AttributeNames;
                     for (int i = 0; i < attributeNames.Count; i++)
                     {
@@ -392,10 +394,12 @@ namespace myADMonitor.Models
                     }
                     else // if it is not in the list of guids
                     {
-                        GuidChangesAggregated _tempChangeCompact = new GuidChangesAggregated();
-                        _tempChangeCompact.FriendlyName = item.FriendlyName;
-                        _tempChangeCompact.Guid = item.guid;
-                        _tempChangeCompact.ObjectClass = item.ObjectClass;
+                        GuidChangesAggregated _tempChangeCompact = new GuidChangesAggregated
+                        {
+                            FriendlyName = item.FriendlyName,
+                            Guid = item.guid,
+                            ObjectClass = item.ObjectClass
+                        };
 
                         var changesByGuid = Changes.Where(c => c.guid == guid).ToArray();
                         List<ChangeCompactAttribute> _tempChangeCompactAttributeList = new List<ChangeCompactAttribute>();
@@ -403,12 +407,14 @@ namespace myADMonitor.Models
                         {
                             if (change.AttributeName == "whenchanged") continue;
 
-                            ChangeCompactAttribute _tempChangeCompactAttribute = new ChangeCompactAttribute();
-                            _tempChangeCompactAttribute.AttributeName = change.AttributeName;
-                            _tempChangeCompactAttribute.OldValues = change.OldValues;
-                            _tempChangeCompactAttribute.NewValues = change.NewValues;
-                            _tempChangeCompactAttribute.IsSingleOrMulti = change.IsSingleOrMulti;
-                            _tempChangeCompactAttribute.WhenChangedWhenDetected = change.WhenChangedWhenDetected;
+                            ChangeCompactAttribute _tempChangeCompactAttribute = new ChangeCompactAttribute
+                            {
+                                AttributeName = change.AttributeName,
+                                OldValues = change.OldValues,
+                                NewValues = change.NewValues,
+                                IsSingleOrMulti = change.IsSingleOrMulti,
+                                WhenChangedWhenDetected = change.WhenChangedWhenDetected
+                            };
 
                             List<string> _tempDeltaValues = new List<string>();
                             if (change.IsSingleOrMulti == false || change.AttributeName == "useraccountcontrol") //multivalue
@@ -506,19 +512,19 @@ namespace myADMonitor.Models
                 // if filterByName is true, remove from allChanges the ones that do not contain nameFilterFinal
                 if (filterByName)
                 {
-                    allChanges = allChanges.Where(c => c.FriendlyName.IndexOf(nameFilterFinal, StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
+                    allChanges = allChanges.Where(c => c.FriendlyName.Contains(nameFilterFinal, StringComparison.OrdinalIgnoreCase)).ToArray();
                 }
                 // if filterByAttribute is true, remove from allChanges the ones that do not contain attributeFilterFinal
                 if (filterByAttribute)
                 {
-                    allChanges = allChanges.Where(c => c.ChangeCompactAttributes.Any(a => a.AttributeName.IndexOf(attributeFilterFinal, StringComparison.OrdinalIgnoreCase) >= 0)).ToArray();
+                    allChanges = allChanges.Where(c => c.ChangeCompactAttributes.Any(a => a.AttributeName.Contains(attributeFilterFinal, StringComparison.OrdinalIgnoreCase))).ToArray();
                     if(showOnlyFilteredAttributeFinal)
                     {
 
                         for (int i = 0; i < allChanges.Length; i++)
                         {
                             var change = allChanges[i];                            
-                            change.ChangeCompactAttributes = change.ChangeCompactAttributes.Where(a => a.AttributeName.IndexOf(attributeFilterFinal, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+                            change.ChangeCompactAttributes = change.ChangeCompactAttributes.Where(a => a.AttributeName.Contains(attributeFilterFinal, StringComparison.OrdinalIgnoreCase)).ToList();
                         }
                     }
                 }

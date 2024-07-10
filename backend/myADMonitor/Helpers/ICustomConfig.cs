@@ -1,6 +1,6 @@
 ﻿namespace myADMonitor.Helpers
 {
-    public interface CustomConfig
+    public interface ICustomConfig
     {
         string DomainControllerFQDN { get; }
         string LDAPQuery { get; }

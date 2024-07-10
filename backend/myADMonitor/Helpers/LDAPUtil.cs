@@ -18,9 +18,10 @@ namespace myADMonitor.Helpers
         public static SearchResultCollection LDAPSearchCollection(string query, string ldappath)
         {
             DirectoryEntry customDirectoryEntry = new DirectoryEntry(ldappath);
-            DirectorySearcher myDirectorySearcher = new(customDirectoryEntry, query);
-
-            myDirectorySearcher.PageSize = 1000;
+            DirectorySearcher myDirectorySearcher = new(customDirectoryEntry, query)
+            {
+                PageSize = 1000
+            };
             //myDirectorySearcher.SizeLimit = 50; //TODO: Remove the limit 
             //myDirectorySearcher.PropertiesToLoad.Add("msDS-AllowedToActOnBehalfOfOtherIdentity");
             SearchResultCollection resultCollection = myDirectorySearcher.FindAll();
@@ -74,7 +75,7 @@ namespace myADMonitor.Helpers
 
 
             bool lastSearch = false;
-            SearchResult sr = null;
+            SearchResult? sr = null;
             while (true)
             {
                 if (!lastSearch)
@@ -90,7 +91,7 @@ namespace myADMonitor.Helpers
                         Console.WriteLine("INFO\tElements found in this range of 1500 elements: " + sr.Properties[currentRange].Count);
                         foreach (object dn in sr.Properties[currentRange])
                         {
-                            al.Add(dn.ToString());
+                            al.Add(dn.ToString()!);
                             idx++;
                         }
                         //our exit condition
@@ -122,7 +123,7 @@ namespace myADMonitor.Helpers
             //TODO: We moved this here, but later we handled the member +1500 in metaverse. This
             //      may slow down the app.
             
-            if (SchemaAttributesCodex.TryGetValue(propertyName, out ActiveDirectorySchemaProperty propSyntaxDetails))  //new Out C# 7
+            if (SchemaAttributesCodex.TryGetValue(propertyName, out ActiveDirectorySchemaProperty? propSyntaxDetails))  //new Out C# 7
             {
                 ADSyntax = propSyntaxDetails.Syntax;
                 isSingleValued = LDAPUtil.SchemaAttributesCodex[propertyName].IsSingleValued;
@@ -161,6 +162,7 @@ namespace myADMonitor.Helpers
         public static string LDAPQueryRangeGenerator(long lower, long upper)
         {            
             return "(&(usnChanged>=" + lower + ")(usnChanged<=" + upper + ")" + DirectoryState.runConfig.LDAPQuery + ")";
+            //TODO: Implement default settings if config file is broken, that will fix the null issue above
         }
 
         public static List<string> ParseAttribute(ADPropertySyntaxAndType syntaxAndType, ResultPropertyValueCollection _expandedPropertiesCollection)
@@ -170,25 +172,25 @@ namespace myADMonitor.Helpers
             switch (syntaxAndType.ADSyntax, syntaxAndType.isSingleValued)
             {
                 case (ActiveDirectorySyntax.Bool, true):
-                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString());                    
+                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString()!);                    
                     break;
                 case (ActiveDirectorySyntax.CaseIgnoreString, true):
-                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString());
+                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString()!);
                     break;                                        
                 case (ActiveDirectorySyntax.DirectoryString, true):
-                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString());
+                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString()!);
                     break;
                 case (ActiveDirectorySyntax.DN, true):
-                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString());
+                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString()!);
                     break;
                 case (ActiveDirectorySyntax.DNWithBinary, true):
-                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString());                    
+                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString()!);                    
                     break;
                 case (ActiveDirectorySyntax.DNWithString, true):
-                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString());                    
+                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString()!);                    
                     break;
                 case (ActiveDirectorySyntax.Enumeration, true):
-                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString()); //TODO find and test an example                    
+                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString()!); //TODO find and test an example                    
                     break;
                 case (ActiveDirectorySyntax.GeneralizedTime, true):
                     DateTime tempTime = (DateTime)_expandedPropertiesCollection[0];
@@ -205,13 +207,13 @@ namespace myADMonitor.Helpers
                     __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString() + "(IA5)");                    
                     break;
                 case (ActiveDirectorySyntax.Int, true):                    //
-                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString());
+                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString()!);
                     break;
                 case (ActiveDirectorySyntax.Int64, true):
-                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString());
+                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString()!);
                     break;
                 case (ActiveDirectorySyntax.NumericString, true):
-                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString());                    
+                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString()!);                    
                     break;
                 case (ActiveDirectorySyntax.OctetString, true):
                     byte[] objectGuidByteFormat2 = (byte[])_expandedPropertiesCollection[0];
@@ -228,16 +230,16 @@ namespace myADMonitor.Helpers
                     }
                     break;
                 case (ActiveDirectorySyntax.Oid, true):
-                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString());                    
+                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString()!);                    
                     break;
                 case (ActiveDirectorySyntax.PresentationAddress, true):
                     Console.WriteLine("STOP");
                     break;
                 case (ActiveDirectorySyntax.PrintableString, true):
-                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString());                    
+                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString()!);                    
                     break;
                 case (ActiveDirectorySyntax.ReplicaLink, true):
-                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString());                    
+                    __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString()!);                    
                     break;
                 case (ActiveDirectorySyntax.SecurityDescriptor, true):
                     Console.WriteLine("STOP");
@@ -295,7 +297,7 @@ namespace myADMonitor.Helpers
                 case (ActiveDirectorySyntax.Enumeration, false):
                     foreach (var s in _expandedPropertiesCollection)
                     {
-                        __tempAttributeValues.Add(s.ToString());
+                        __tempAttributeValues.Add(s.ToString()!);
                     }                    
                     break;
                 case (ActiveDirectorySyntax.GeneralizedTime, false):
@@ -327,12 +329,13 @@ namespace myADMonitor.Helpers
                 case (ActiveDirectorySyntax.Int64, false):
                     foreach (var s in _expandedPropertiesCollection)
                     {
-                        __tempAttributeValues.Add(s.ToString());
+                        __tempAttributeValues.Add(s.ToString()!);
                     }                    
                     break;
                 case (ActiveDirectorySyntax.NumericString, false):
                     foreach (string s in _expandedPropertiesCollection) { 
-                        __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString());
+                        __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString()!);
+                        //TODO: Maybe I do not need the foerach in the other cases as well, because they are on index 0
                     }            
                     break;
                 case (ActiveDirectorySyntax.OctetString, false):
@@ -359,7 +362,7 @@ namespace myADMonitor.Helpers
                 case (ActiveDirectorySyntax.ReplicaLink, false): //TODO: This is Byte[] but we hack it to string 
                     foreach (var oid in _expandedPropertiesCollection)
                     {
-                        __tempAttributeValues.Add(oid.ToString());
+                        __tempAttributeValues.Add(oid.ToString()!);
                     }                    
                     break;
                 case (ActiveDirectorySyntax.SecurityDescriptor, false):                    

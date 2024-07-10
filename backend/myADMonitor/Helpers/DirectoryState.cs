@@ -11,17 +11,17 @@ namespace myADMonitor.Helpers
         private const StringComparison INSENSITIVE = StringComparison.CurrentCultureIgnoreCase;
         private static string? DomainNameFQDN;
         private static DomainController? connectedDC;
-        private static Metaverse _metaverse = new();
+        private static readonly Metaverse _metaverse = new();
         private static bool status_dBInitialized;
         private static string? LDAPConnectionString;
         private static long highestUSN;
         private static long movingUSNLower;
         private static long movingUSNUpper;
-        private static readonly HeaderData? HeaderDataInfo = new();
+        private static readonly HeaderData HeaderDataInfo = new();
         public static long TotalDeltas;
         private static bool status_IsDeltaRunning;
         private static string? configFilePath;
-        public static CustomConfig? runConfig;
+        public static ICustomConfig? runConfig;
         public static bool listenAllIPs;
         public static int tCPPort;
 
@@ -49,11 +49,18 @@ namespace myADMonitor.Helpers
             if (!System.IO.File.Exists(configFilePath))
             {
                 Console.WriteLine("ERROR\t" + configFilePath + " configuration file not found. Starting myADMonitor with default settings.");
+                Console.WriteLine("ERROR\t" + "Default settings not implemented yet, exiting....");
+                System.Environment.Exit(1);
             }
-            runConfig = new ConfigurationBuilder<CustomConfig>()
-                .UseIniFile(configFilePath) //TODO: Stop if config file is not found
-                .Build();
-            Console.WriteLine(runConfig);
+            else
+            {
+                runConfig = new ConfigurationBuilder<ICustomConfig>()
+                    .UseIniFile(configFilePath) //TODO: Stop if config file is not found
+                    .Build();
+                Console.WriteLine(runConfig);
+            }
+
+
 
             //TODO: Set all config settings here, right after reading the config file.
         }
@@ -197,9 +204,7 @@ namespace myADMonitor.Helpers
 
             HeaderDataInfo.DomainName = DomainNameFQDN;
             HeaderDataInfo.DomainControllerFQDN = connectedDC.Name;
-            HeaderDataInfo.Query = String.IsNullOrWhiteSpace(runConfig.LDAPQuery)
-                ? "No custom LDAP. Include ALL objects"
-                : HeaderDataInfo.Query = runConfig.LDAPQuery;
+            HeaderDataInfo.Query = runConfig?.LDAPQuery ?? "No custom LDAP. Include ALL objects";
             UpdateHeaderDataInfo();
         } // End initialize
 
@@ -251,14 +256,14 @@ namespace myADMonitor.Helpers
 
             long oldHighestUSN = highestUSN;
             long nextUSN = oldHighestUSN + 1;
-            highestUSN = connectedDC.HighestCommittedUsn;
+            highestUSN = connectedDC!.HighestCommittedUsn;
 
             // Do we have new changes?
             if (highestUSN > oldHighestUSN)
             {
                 Console.WriteLine("INFO\tFetching changes from USN range: {0} <-> {1}", nextUSN, highestUSN);
                 string query = LDAPUtil.LDAPQueryRangeGenerator(nextUSN, highestUSN);
-                SearchResultCollection foundObjects = LDAPUtil.LDAPSearchCollection(query, LDAPConnectionString);
+                SearchResultCollection foundObjects = LDAPUtil.LDAPSearchCollection(query, LDAPConnectionString!);
                 foreach (SearchResult searchResult in foundObjects) _metaverse.AddOrUpdateObject(searchResult);
                 Console.WriteLine("INFO\t{0} changed objects or new found", foundObjects.Count);
             }
@@ -357,7 +362,7 @@ namespace myADMonitor.Helpers
 
         public static string GetDomainNameFQDN()
         {
-            return DomainNameFQDN;
+            return DomainNameFQDN!;
         }
 
         public static bool GetDeltaRunning()

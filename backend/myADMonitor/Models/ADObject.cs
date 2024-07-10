@@ -1,11 +1,11 @@
 ﻿namespace myADMonitor.Models
 {
-    public class ADObject
+    public class ADObject(Guid _guid, string _path, string dn, string shortname)
     {
-        public string DN;
-        public string ShortName;
-        public Guid GUID;
-        public string Path;
+        public string DN = dn;
+        public string ShortName = shortname;
+        public Guid GUID = _guid;
+        public string Path = _path;
 
         public List<string> AttributeNames = new();
         public List<List<string>> AttributeValues = new();
@@ -13,15 +13,6 @@
         public ADObjectClass ObjectClass;
         public long USN;
         public LifeCycle ObjectLifeCycle;
-
-        public ADObject(Guid _guid, string _path, string dn, string shortname)
-        {
-            GUID = _guid;
-            Path = _path;
-            DN = dn;
-            ShortName = shortname;
-
-        }
 
         public void AddAttribute(string name, List<string> value)
         {
