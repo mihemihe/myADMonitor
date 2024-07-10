@@ -154,6 +154,12 @@ namespace myADMonitor.Helpers
             stopwatch.Start();
             Console.WriteLine("INFO\tNEW SYNC start:\t" + DateTime.Now);
 
+            var outterStopWatch = new System.Diagnostics.Stopwatch();
+            outterStopWatch.Start();
+            int totalObjecsFound = 0;
+            
+
+
             highestUSN = connectedDC.HighestCommittedUsn;            
             foreach (int range in ranges)
             {
@@ -165,7 +171,7 @@ namespace myADMonitor.Helpers
                 SearchResultCollection foundObjects = LDAPUtil.LDAPSearchCollection(query, LDAPConnectionString);
                 try
                 {
-                    foreach (SearchResult searchResult in foundObjects) _metaverse.AddOrUpdateObject(searchResult);
+                    foreach (SearchResult searchResult in foundObjects) _metaverse.AddOrUpdateObject(searchResult);                    
                 }
                 catch (Exception ex)
                 {
@@ -177,6 +183,9 @@ namespace myADMonitor.Helpers
                     throw;
                 }
                 int foundObjectsCount = foundObjects.Count;
+                totalObjecsFound += foundObjectsCount;
+
+
                 highestUSN = connectedDC.HighestCommittedUsn;                
                 innerStopWatch.Stop();                
                 double rate;
@@ -190,10 +199,35 @@ namespace myADMonitor.Helpers
                 {
                     intRate = 0; 
                 }
-                Console.WriteLine("INFO\tRange {0} <> {1}\t\tFound {2}\t objects in this range ({3} ms\t| {4} objects/sec aprox.)", movingUSNLower, movingUSNUpper, foundObjectsCount, innerStopWatch.ElapsedMilliseconds, intRate);
-                
-            }           
 
+                double totalRate;
+                int totalIntRate;
+
+                if (outterStopWatch.ElapsedMilliseconds > 0)
+                {
+                    totalRate = (double)(totalObjecsFound * 1000) / outterStopWatch.ElapsedMilliseconds;
+                    totalIntRate = (int)totalRate;
+
+                }
+                else
+                {
+                    totalIntRate = 0;
+                }
+
+                int remainingObjects = usns.Count - totalObjecsFound;
+
+                int ETA = 0;
+
+                if (totalIntRate == 0)
+                { ETA = 0;}
+                else
+                { ETA = remainingObjects / totalIntRate;}
+
+                Console.WriteLine("Range {0} <> {1}\t\tFound {2}\t (Avg. rate {3} obj/s. Left {4}. ETA: {5} seconds)",
+                    movingUSNLower, movingUSNUpper, foundObjectsCount, totalIntRate, remainingObjects, ETA);
+                
+            }
+            outterStopWatch.Stop();
             status_dBInitialized = true;
 
             Console.WriteLine("INFO\tNEW SYNC Complete:\t" + DateTime.Now);
