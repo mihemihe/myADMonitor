@@ -429,3 +429,4 @@ namespace myADMonitor.Helpers
 //TODO: explore the tombstone on DirectorySearcher to track deleted objects
 //TODO: explore AttributeScopeQuery  to search by members for groups
 //TODO: Add identification of other classes, such as the ones when you add a RODC
+//TODO: Handle updating an attribute with the same value. It is a change, but it show some feedback to the user

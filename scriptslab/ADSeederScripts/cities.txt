@@ -1,0 +1,150 @@
+New York
+Los Angeles
+Chicago
+Houston
+Phoenix
+Philadelphia
+San Antonio
+San Diego
+Dallas
+San Jose
+Austin
+Jacksonville
+Fort Worth
+Columbus
+Charlotte
+San Francisco
+Indianapolis
+Seattle
+Denver
+Washington, D.C.
+Boston
+El Paso
+Nashville
+Detroit
+Oklahoma City
+Portland
+Las Vegas
+Memphis
+Louisville
+Baltimore
+Milwaukee
+Albuquerque
+Tucson
+Fresno
+Sacramento
+Kansas City
+Mesa
+Atlanta
+Omaha
+Miami
+Oakland
+Minneapolis
+Tulsa
+Wichita
+New Orleans
+Arlington
+Cleveland
+Tampa
+Bakersfield
+Aurora
+Honolulu
+Anaheim
+Santa Ana
+Corpus Christi
+Riverside
+Lexington
+St. Louis
+Stockton
+Pittsburgh
+St. Paul
+Cincinnati
+Anchorage
+Henderson
+Greensboro
+Plano
+Newark
+Lincoln
+Orlando
+Irvine
+Toledo
+Jersey City
+Chula Vista
+Durham
+Fort Wayne
+St. Petersburg
+Laredo
+Buffalo
+Madison
+Lubbock
+Chandler
+Scottsdale
+Glendale
+Reno
+Norfolk
+Winston-Salem
+North Las Vegas
+Irving
+Chesapeake
+Gilbert
+Hialeah
+Garland
+Fremont
+Richmond
+Boise
+Baton Rouge
+Des Moines
+Spokane
+San Bernardino
+Modesto
+Birmingham
+Fontana
+Rochester
+Moreno Valley
+Fayetteville
+Shreveport
+Akron
+Yonkers
+Augusta
+Montgomery
+Little Rock
+Huntsville
+Amarillo
+Glendale
+Mobile
+Grand Rapids
+Salt Lake City
+Tallahassee
+Huntsville
+Knoxville
+Grand Prairie
+Worcester
+Newport News
+Brownsville
+Overland Park
+Santa Clarita
+Providence
+Garden Grove
+Chattanooga
+Oceanside
+Jackson
+Fort Lauderdale
+Santa Rosa
+Rancho Cucamonga
+Port St. Lucie
+Tempe
+Ontario
+Vancouver
+Cape Coral
+Sioux Falls
+Springfield
+Peoria
+Pembroke Pines
+Elk Grove
+Salem
+Lancaster
+Corona
+Eugene
+Palmdale
+Salinas
+Springfield
