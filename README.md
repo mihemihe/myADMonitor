@@ -4,6 +4,17 @@ myADMonitor is an open-source Active Directory changes tracking tool. It gives y
 
 ![alt text](/blob/Example01v06.png?raw=true)
 
+## What's Changed on v0.6 - July 2024
+
+* Complete frontend revamp based on React 18
+* Added Real-time filtering by object classes, object names or attribute names
+* Added a control to focus only on the attributes filtered, or show all updated attributes
+* Added a control to enable and disable the automatic refresh
+* Filters are consumed via Query, allowing the consumption of the data from other sources (Excel, Powershell, etc...)
+* Added performance metrics and ETA to the initial synchronization
+* Upgrade to .NET 8.0 for better security and performance
+* Several bug fixes
+
 
 ## Table of Contents
 - [Quick-Start](#quick-start)
