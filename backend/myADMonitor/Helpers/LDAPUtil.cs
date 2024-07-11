@@ -414,3 +414,5 @@ namespace myADMonitor.Helpers
     }
 }
 #pragma warning restore CA1416 // Validate platform compatibility
+
+//TODO: Document the fact that you must not upgrade the schema while the app is running.

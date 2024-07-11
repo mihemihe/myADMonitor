@@ -57,7 +57,7 @@ namespace myADMonitor.Helpers
                 runConfig = new ConfigurationBuilder<ICustomConfig>()
                     .UseIniFile(configFilePath) //TODO: Stop if config file is not found
                     .Build();
-                Console.WriteLine(runConfig);
+                //Console.WriteLine(runConfig);
             }
             //TODO: Set all config settings here, right after reading the config file.
         }

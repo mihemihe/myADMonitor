@@ -47,7 +47,10 @@ namespace myADMonitor.Models
             return System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory);
 #endif
         }
-
+        //TODO: Optimization techniques
+        //Save only the unique part of the DN, and compute the rest later
+        //Save only the unique part for Path, and compute the rest later
+        //Create a list of attribute names and save only an index to the list List<string> guarantees order
         public void AddOrUpdateObject(SearchResult _searchResult)
         {
             lock (changesLock)
