@@ -1,4 +1,8 @@
-# myADMonitor
+<h1 align="center">
+  <br>
+  myADMonitor
+  <br>
+</h1>
 
 myADMonitor is an open-source Active Directory changes tracking tool. It gives you almost real-time visibility on changes commited to your Active Directory domain.
 
