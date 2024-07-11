@@ -10,6 +10,12 @@
     <PackageReference Include="System.DirectoryServices" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <Content Update="wwwroot\assets\index-BfbMUa91.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\assets\index-DjszcjvQ.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="wwwroot\assets\index.14902850.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
