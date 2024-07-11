@@ -2,7 +2,7 @@
 
 myADMonitor is an open-source Active Directory changes tracking tool. It gives you almost real-time visibility on changes commited to your Active Directory domain.
 
-![alt text](/blob/Example01.png?raw=true)
+![alt text](/blob/Example01v06.png?raw=true)
 
 
 ## Table of Contents
