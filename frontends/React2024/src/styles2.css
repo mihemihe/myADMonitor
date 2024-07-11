@@ -1,0 +1,276 @@
+body {
+  background: linear-gradient(to right, #e0e4f0, #726b6b);
+}
+
+/* GRID BLOCKS */
+.header {
+  grid-area: header;
+  padding: 20px;
+  border: 1px solid #808080;
+  /* Below to makke the ULs side by side */
+  display: flex;
+}
+.sidebar {
+  grid-area: sidebar;
+  /* background-color: #45aaf2; */
+  /* background-color: #ece9d8; */
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 16px;
+  /* color: #000000; */
+  /* padding: 5px; */
+}
+.events-container {
+  grid-area: events-container;
+  font-family: "Lucida Console", Monaco, monospace;
+  font-size: 0.75rem;
+  /* background-color: #c0c0c0; */
+}
+.footer {
+  padding: 20px;
+  grid-area: footer;
+  /* background-color: #fd9644; */
+}
+.wrapper {
+  display: grid;
+  grid-gap: 2px;
+  grid-template-columns: 0.5fr 3fr;
+  grid-template-areas:
+    "header  header"
+    "sidebar events-container"
+    "footer  footer";
+}
+@media (max-width: 500px) {
+  .wrapper {
+    grid-template-columns: 4fr;
+    grid-template-areas:
+      "header"
+      "sidebar"
+      "events-container"
+      "footer";
+  }
+} /* END GRID BLOCKS */
+
+/* SIDEBAR SETTINGS STYLES */
+.window-form {
+  background-color: #d4d0c8;
+  border: 2px solid #919b9c;
+  padding: 5px;
+  width: 250px;
+  word-wrap: break-word;
+}
+.title-bar {
+  background: linear-gradient(to right, #0a246a, #a6caf0);
+  color: rgb(255, 255, 255);
+  padding: 5px 5px;
+  font-weight: bold;
+}
+
+label {
+  display: block;
+  margin-top: 3px;
+}
+input[type="text"],
+select,
+textarea {
+  width: 100%;
+  padding: 2px;
+  border: 1px solid #919b9c;
+  background-color: white;
+  box-shadow: inset 1px 1px 1px #d4d0c8;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  margin-right: 5px;
+}
+.button {
+  background-color: #d4d0c8;
+  border: 1px solid #919b9c;
+  padding: 2px 10px;
+  margin-top: 3px;
+  cursor: pointer;
+}
+.button:active {
+  background-color: #b0aea8;
+}
+.button {
+  border-width: 2px;
+  border-style: outset;
+  border-color: buttonface;
+  border-right-color: #424242;
+  border-bottom-color: #424242;
+
+  color: black;
+  padding: 4px;
+  border-radius: 1px;
+}
+.groupbox {
+  border: 1px solid #919b9c;
+  margin-top: 15px;
+  padding: 10px;
+  position: relative;
+  padding-top: 15px;
+}
+.groupbox-title {
+  position: absolute;
+  top: -10px;
+  left: 10px;
+  background-color: #d4d0c8;
+  padding: 0 5px;
+}
+
+.textarea-ldap {
+  height: 100px;
+  resize: none;
+  font-family: "Lucida Console", Monaco, monospace;
+  font-size: 14px;
+}
+
+.labelLdap {
+  font-weight: bold;
+}
+
+.labelLdapText {
+  font-size: 0.75rem;
+  display: block;
+}
+
+#groupbox-status {
+  font-size: 0.8rem;
+}
+
+/* END SIDEBAR SETTINGS STYLES */
+
+/* EVENTS CARDS SETTINGS STYLES */
+.event-card-table {
+  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
+  border: 1px solid #808080;
+  background-color: #ffffff;
+  margin: 5px 5px 15px 5px;
+  padding: 20px;
+  /* Experiment below */
+  border-collapse: collapse;
+  border: 1px solid black;
+}
+td,
+th {
+  border: 1px solid black;
+}
+
+.cell {
+  padding: 1px 2px 0px 2px;
+}
+
+.event-header {
+  background: linear-gradient(to right, #0a246a, #a6caf0);
+  color: rgb(255, 255, 255);
+  padding: 5px 5px;
+  font-weight: bold;
+}
+
+.header-value {
+  color: rgb(33, 248, 255);
+}
+.header-tag {
+  color: gold;
+}
+
+.card-column-name {
+  font-weight: bold;
+  font-size: 16px;
+  color: #c9c9c9;
+  background-color: black;
+  border-bottom: 1px solid rgb(255, 255, 255);
+  border-right: 1px solid rgb(255, 255, 255);
+  padding-left: 5px;
+}
+
+.event-attribute-cell {
+  background-color: rgb(221, 219, 231);
+  color: rgb(30, 31, 30);
+}
+
+.event-row {
+  border-bottom: "solid";
+  border-width: 1px;
+}
+.attribute-name-cell {
+  font-weight: bold;
+}
+
+.new-values-cell,
+.values-cell {
+  border-left: solid;
+  border-width: 1px;
+}
+
+.warning-multi-cell {
+  font-weight: bold;
+}
+/* END EVENTS CARDS SETTINGS STYLES */
+
+/* CONDITIONAL FORMATTING STYLES */
+
+.green-added {
+  background-color: #d2fbcb;
+}
+.red-deleted {
+  background-color: #fbd0d2;
+}
+.empty-old-values {
+  background-color: #fbd0d2;
+}
+
+/* END CONDITIONAL FORMATTING STYLES */
+
+/* body {
+      font-family: 'MS Sans Serif', Arial, sans-serif;
+      background-color: #008080;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+  }
+  .window {
+      background-color: #D4D0C8;
+      border: 2px solid;
+      border-color: #FFFFFF #808080 #808080 #FFFFFF;
+      padding: 2px;
+      width: 550px;
+  }
+  .title-bar {
+      background: linear-gradient(to right, #000080, #1084d0);
+      color: white;
+      padding: 3px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+  }
+  .title-bar::before {
+      content: '';
+      width: 16px;
+      height: 16px;
+      background-color: #D4D0C8;
+      margin-right: 4px;
+  }
+  table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2px;
+  }
+  th, td {
+      border: 1px solid #808080;
+      padding: 3px 6px;
+      text-align: left;
+  }
+  th {
+      background-color: #D4D0C8;
+      font-weight: normal;
+  }
+  tr:nth-child(even) {
+      background-color: #FFFFFF;
+  }
+  tr:nth-child(odd) {
+      background-color: #F0F0F0;
+  }*/
