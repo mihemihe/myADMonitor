@@ -39,7 +39,7 @@ namespace myADMonitor.BackgroundTasks
                                     Console.WriteLine("INFO\tStats completed. Total objects {0}", DirectoryState.RetrieveHeaderData().ObjectsInDatabase);
                                 }
 
-                                DirectoryState.TotalDeltas += 1;
+                                DirectoryState.TotalDeltas++;
                             }
 
                             DirectoryState.SetDeltaRunningFalse();

@@ -5,6 +5,6 @@ namespace myADMonitor.Models
     public class ADPropertySyntaxAndType
     {
         public ActiveDirectorySyntax ADSyntax { get; set; }
-        public bool isSingleValued { get; set; }
+        public bool IsSingleValued { get; set; }
     }
 }

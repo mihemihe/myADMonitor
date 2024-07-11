@@ -8,8 +8,6 @@ namespace myADMonitor
         public static void Main(string[] args)
         {
             //TODO Investigate kestrel disable  or optional http2
-
-
             // Initialize AD State for myADMonitor
             DirectoryState.Start();
             DirectoryState.Initialize();
@@ -65,7 +63,6 @@ namespace myADMonitor
             {
                 app.Urls.Add("http://localhost:" + DirectoryState.tCPPort);
             }
-            
 
             app.Run();
         }

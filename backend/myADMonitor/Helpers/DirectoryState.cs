@@ -34,7 +34,7 @@ namespace myADMonitor.Helpers
 
 #endif
             status_dBInitialized = false;
-            status_IsDeltaRunning = false;            
+            status_IsDeltaRunning = false;
             highestUSN = 0;
             movingUSNLower = 0;
             movingUSNUpper = 999;
@@ -59,9 +59,6 @@ namespace myADMonitor.Helpers
                     .Build();
                 Console.WriteLine(runConfig);
             }
-
-
-
             //TODO: Set all config settings here, right after reading the config file.
         }
 
@@ -75,7 +72,6 @@ namespace myADMonitor.Helpers
             // Try parse the custom port if defined. Otherwise default will be used, 5000 TCP
             if (!String.IsNullOrWhiteSpace(DirectoryState.runConfig?.TCPPort))
             {
-
                 var parseSuccess = int.TryParse(DirectoryState.runConfig.TCPPort, out tCPPort);
                 if (!parseSuccess)
                 {
@@ -157,10 +153,9 @@ namespace myADMonitor.Helpers
             var outterStopWatch = new System.Diagnostics.Stopwatch();
             outterStopWatch.Start();
             int totalObjecsFound = 0;
-            
 
 
-            highestUSN = connectedDC.HighestCommittedUsn;            
+            highestUSN = connectedDC.HighestCommittedUsn;
             foreach (int range in ranges)
             {
                 var innerStopWatch = new System.Diagnostics.Stopwatch();
@@ -171,7 +166,7 @@ namespace myADMonitor.Helpers
                 SearchResultCollection foundObjects = LDAPUtil.LDAPSearchCollection(query, LDAPConnectionString);
                 try
                 {
-                    foreach (SearchResult searchResult in foundObjects) _metaverse.AddOrUpdateObject(searchResult);                    
+                    foreach (SearchResult searchResult in foundObjects) _metaverse.AddOrUpdateObject(searchResult);
                 }
                 catch (Exception ex)
                 {
@@ -186,18 +181,18 @@ namespace myADMonitor.Helpers
                 totalObjecsFound += foundObjectsCount;
 
 
-                highestUSN = connectedDC.HighestCommittedUsn;                
-                innerStopWatch.Stop();                
+                highestUSN = connectedDC.HighestCommittedUsn;
+                innerStopWatch.Stop();
                 double rate;
                 int intRate;
                 if (innerStopWatch.ElapsedMilliseconds > 0)
                 {
-                    rate = (double)foundObjectsCount * (1000f / innerStopWatch.ElapsedMilliseconds);                    
+                    rate = (double)foundObjectsCount * (1000f / innerStopWatch.ElapsedMilliseconds);
                     intRate = (int)rate;
                 }
                 else
                 {
-                    intRate = 0; 
+                    intRate = 0;
                 }
 
                 double totalRate;
@@ -225,7 +220,7 @@ namespace myADMonitor.Helpers
 
                 Console.WriteLine("Range {0} <> {1}\t\tFound {2}\t (Avg. rate {3} obj/s. Left {4}. ETA: {5} seconds)",
                     movingUSNLower, movingUSNUpper, foundObjectsCount, totalIntRate, remainingObjects, ETA);
-                
+
             }
             outterStopWatch.Stop();
             status_dBInitialized = true;
@@ -233,7 +228,7 @@ namespace myADMonitor.Helpers
             Console.WriteLine("INFO\tNEW SYNC Complete:\t" + DateTime.Now);
             stopwatch.Stop();
             Console.WriteLine("INFO\tNEW SYNC took: {0} seconds", stopwatch.ElapsedMilliseconds / 1000);
-            
+
             #endregion NEW SYNC EXECUTION
 
             HeaderDataInfo.DomainName = DomainNameFQDN;
@@ -428,8 +423,6 @@ namespace myADMonitor.Helpers
         {
             return _metaverse.ListChangesApplyAllFilters(objectClasses, objectNameFilter, attributeFilter, showOnlyFilteredAttribute);
         }
-
-
     }
 }
 

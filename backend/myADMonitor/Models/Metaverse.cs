@@ -36,11 +36,9 @@ namespace myADMonitor.Models
             filesPath = GetFilesRootPath();
             changesLogFile = filesPath + string.Format("ADCHANGES-{0:yyyy-MM-dd_hh-mm-ss-tt}.tsv", DateTime.Now);
             Console.WriteLine("SETTING\t Changes log file:\t" + changesLogFile);
-
-
         }
 
-        private string GetFilesRootPath()
+        private static string GetFilesRootPath()
         {
 #if DEBUG
             return @"C:\Misc\myadmonitorlog\";
@@ -169,8 +167,6 @@ namespace myADMonitor.Models
                     int position2 = forgedADObject.AttributeNames.IndexOf("msds-revealedusersComplete");
                     forgedADObject.AttributeNames[position2] = "msds-revealedusers";
                 }
-
-
                 // -4- check if the objects is in the metaverse, and add/remove/update attributes from the change happening.... Update by replacing the metaverse object
                 // TODO: Change to TryGetValue for huge gains and avoid double lookup
                 if (AllObjects.TryGetValue(objectGuid, out ADObject? value))
@@ -192,7 +188,7 @@ namespace myADMonitor.Models
                         var _whenDetected = DateTime.Now;
                         var _whenChanged = forgedADObject.AttributeValues[forgedADObject.AttributeNames.IndexOf("whenchanged")][0];
                         var _currentUSN = forgedADObject.USN;
-                        var _singleOrMulti = LDAPUtil.GetProperySyntaxAndType(newAttribute).isSingleValued;
+                        var _singleOrMulti = LDAPUtil.GetProperySyntaxAndType(newAttribute).IsSingleValued;
                         var _fromNewOrFromChange = FromNewOrFromChange.FROM_CHANGE;
                         Change _change = new Change(_guid, _newAttribute, _fromEmptyOldValues, _newValues, _whenDetected, _whenChanged, _currentUSN, _singleOrMulti, _fromNewOrFromChange, friendlyName, forgedADObject.ObjectClass);
                         Changes.Add(_change);
@@ -208,7 +204,7 @@ namespace myADMonitor.Models
                         var _whenDetected = DateTime.Now;
                         var _whenChanged = forgedADObject.AttributeValues[forgedADObject.AttributeNames.IndexOf("whenchanged")][0];
                         var _currentUSN = forgedADObject.USN;
-                        var _singleOrMulti = LDAPUtil.GetProperySyntaxAndType(emptiedAttribute).isSingleValued;
+                        var _singleOrMulti = LDAPUtil.GetProperySyntaxAndType(emptiedAttribute).IsSingleValued;
                         var _fromNewOrFromChange = FromNewOrFromChange.FROM_CHANGE;
                         Change _change = new Change(_guid, _emptiedAttribute, _oldValues, _NewValuesEmpty, _whenDetected, _whenChanged, _currentUSN, _singleOrMulti, _fromNewOrFromChange, friendlyName, forgedADObject.ObjectClass);
                         Changes.Add(_change);
@@ -229,7 +225,7 @@ namespace myADMonitor.Models
                             var _whenDetected = DateTime.Now;
                             var _whenChanged = forgedADObject.AttributeValues[forgedADObject.AttributeNames.IndexOf("whenchanged")][0];
                             var _currentUSN = forgedADObject.USN; //TODO: find how many times this USN is used, I have the impression is not required.                            
-                            var _singleOrMulti = LDAPUtil.GetProperySyntaxAndType(commonAttribute).isSingleValued;
+                            var _singleOrMulti = LDAPUtil.GetProperySyntaxAndType(commonAttribute).IsSingleValued;
                             var _fromNewOrFromChange = FromNewOrFromChange.FROM_CHANGE;
                             Change _change = new Change(_guid, _commonAttribute, _oldValues, _newValues, _whenDetected, _whenChanged, _currentUSN, _singleOrMulti, _fromNewOrFromChange, friendlyName, forgedADObject.ObjectClass);
                             Changes.Add(_change);
@@ -265,7 +261,7 @@ namespace myADMonitor.Models
                             var _whenDetected = DateTime.Now;
                             var _whenChanged = forgedADObject.AttributeValues[forgedADObject.AttributeNames.IndexOf("whenchanged")][0];
                             var _currentUSN = forgedADObject.USN;
-                            var _singleOrMulti = LDAPUtil.GetProperySyntaxAndType(newAttribute).isSingleValued;
+                            var _singleOrMulti = LDAPUtil.GetProperySyntaxAndType(newAttribute).IsSingleValued;
                             var _fromNewOrFromChange = FromNewOrFromChange.FROM_NEW;
                             Change _change = new Change(_guid, _newAttribute, _fromEmptyOldValues, _newValues, _whenDetected, _whenChanged, _currentUSN, _singleOrMulti, _fromNewOrFromChange, friendlyName, forgedADObject.ObjectClass);
                             Changes.Add(_change);
@@ -277,26 +273,36 @@ namespace myADMonitor.Models
             // TODO: Detect deleted items
         } // END AddOrUpdateObject method
 
-        private void AddToFileCollection(List<string> c, List<string> d, Change _change)
+        private void AddToFileCollection(List<string> oldValues, List<string> newValues, Change change)
         {
             //TODO: Added a quick file logger for MAF issue. Remove this or improve it.
             //TODO: Detect tabs on the attributes because TSV
+            //TODO: Use join instead of foreach and remove last char
+            //string oldValuesConcatenated = string.Join("|", oldValues);
+            //string newValuesConcatenated = string.Join("|", newValues);
+
+            //string outputLine = $"{change.FriendlyName}\t{change.AttributeName}\t{oldValuesConcatenated}\t{newValuesConcatenated}";
+
+            //using (StreamWriter sw = File.AppendText(changesLogFile))
+            //{
+            //    sw.WriteLine(outputLine);
+            //}
             string oldvvv = "";
             string newvvv = "";
-            foreach (string ov in c)
+            foreach (string ov in oldValues)
             {
                 oldvvv += ov + "|";
             }
             // is oldvvv empty, blank or null?
             if (!string.IsNullOrWhiteSpace(oldvvv) && oldvvv.Last() == '|') oldvvv = oldvvv.Remove(oldvvv.Length - 1);
 
-            foreach (string nv in d)
+            foreach (string nv in newValues)
             {
                 newvvv += nv + "|";
             }
             if (!string.IsNullOrWhiteSpace(newvvv) && newvvv.Last() == '|') newvvv = newvvv.Remove(newvvv.Length - 1);
 
-            string outputline = _change.FriendlyName + "\t" + _change.AttributeName + "\t" + oldvvv + "\t" + newvvv;
+            string outputline = change.FriendlyName + "\t" + change.AttributeName + "\t" + oldvvv + "\t" + newvvv;
 
             using StreamWriter sw = File.AppendText(changesLogFile);
             sw.WriteLine(outputline);             //changesLogLines.Add(_change. + "\t" + _change.AttributeName + "\t" + oldvvv + "\t" + newvvv); //TODO: Save periodically using this collection
@@ -384,13 +390,14 @@ namespace myADMonitor.Models
             {
                 List<GuidChangesAggregated> result = new List<GuidChangesAggregated>();
 
-                foreach (var item in Changes) // Foreach change
+                foreach (var item in Changes) 
                 {
                     var guid = item.guid;
                     bool existsAlready = result.Any(result => result.Guid == guid);
 
-                    if (existsAlready) // If it is already in the list
+                    if (existsAlready)
                     {
+                        //WHY: This exist because for each guid it will computer in an inner loop the changes. This is not efficient. 
                     }
                     else // if it is not in the list of guids
                     {
@@ -422,8 +429,8 @@ namespace myADMonitor.Models
                                 var emptiedAttributes = change.OldValues.Except(change.NewValues, StringComparer.OrdinalIgnoreCase);
                                 var newAttributes = change.NewValues.Except(change.OldValues, StringComparer.OrdinalIgnoreCase);
                                 var commonAttributes = change.NewValues.Intersect(change.OldValues, StringComparer.OrdinalIgnoreCase).ToList();
-                                foreach (var addedItem in emptiedAttributes) { _tempDeltaValues.Add(@"(-)" + addedItem); }
-                                foreach (var removedItem in newAttributes) { _tempDeltaValues.Add(@"(+)" + removedItem); }
+                                foreach (var addedItem in emptiedAttributes) { _tempDeltaValues.Add("(-)" + addedItem); }
+                                foreach (var removedItem in newAttributes) { _tempDeltaValues.Add("(+)" + removedItem); }
                             }
                             _tempChangeCompactAttribute.DeltaValues = _tempDeltaValues;
 
@@ -478,7 +485,6 @@ namespace myADMonitor.Models
             bool filterByObjectClasses = false;
             bool filterByName = false;
             bool filterByAttribute = false;
-            
 
 
             if (string.IsNullOrEmpty(objectClasses) && string.IsNullOrEmpty(objectNameFilter) && string.IsNullOrEmpty(attributeFilter))
@@ -486,7 +492,7 @@ namespace myADMonitor.Models
                 // Return all changes from ListAllChanges3()
                 return result.ToArray();
             }
-            
+
             if(!string.IsNullOrEmpty(objectClasses))
             {
                 filterByObjectClasses = true;
@@ -523,7 +529,7 @@ namespace myADMonitor.Models
 
                         for (int i = 0; i < allChanges.Length; i++)
                         {
-                            var change = allChanges[i];                            
+                            var change = allChanges[i];
                             change.ChangeCompactAttributes = change.ChangeCompactAttributes.Where(a => a.AttributeName.Contains(attributeFilterFinal, StringComparison.OrdinalIgnoreCase)).ToList();
                         }
                     }
@@ -535,37 +541,37 @@ namespace myADMonitor.Models
 
         public int CountUsers()
         {
-            int countUsers = AllObjects.Values.Where(x => x.ObjectClass == ADObjectClass.USER).Count();
+            int countUsers = AllObjects.Values.Count(x => x.ObjectClass == ADObjectClass.USER);
             return countUsers;
         }
 
         public int CountGroups()
         {
-            int countGroups = AllObjects.Values.Where(x => x.ObjectClass == ADObjectClass.GROUP).Count();
+            int countGroups = AllObjects.Values.Count(x => x.ObjectClass == ADObjectClass.GROUP);
             return countGroups;
         }
 
         public int CountContacts()
         {
-            int countContacts = AllObjects.Values.Where(x => x.ObjectClass == ADObjectClass.CONTACT).Count();
+            int countContacts = AllObjects.Values.Count(x => x.ObjectClass == ADObjectClass.CONTACT);
             return countContacts;
         }
 
         public int CountComputers()
         {
-            int countComputers = AllObjects.Values.Where(x => x.ObjectClass == ADObjectClass.COMPUTER).Count();
+            int countComputers = AllObjects.Values.Count(x => x.ObjectClass == ADObjectClass.COMPUTER);
             return countComputers;
         }
 
         public int CountOUs()
         {
-            int countOUs = AllObjects.Values.Where(x => x.ObjectClass == ADObjectClass.OU).Count();
+            int countOUs = AllObjects.Values.Count(x => x.ObjectClass == ADObjectClass.OU);
             return countOUs;
         }
 
         public int CountOthers()
         {
-            int countOthers = AllObjects.Values.Where(x => x.ObjectClass == ADObjectClass.UNKNOWN).Count();
+            int countOthers = AllObjects.Values.Count(x => x.ObjectClass == ADObjectClass.UNKNOWN);
             return countOthers;
         }
     }

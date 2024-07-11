@@ -155,7 +155,7 @@ namespace myADMonitor.Helpers
                 Console.WriteLine("No such key: {0}", propertyName);
             }
             syntaxAndType.ADSyntax = ADSyntax;
-            syntaxAndType.isSingleValued = isSingleValued;
+            syntaxAndType.IsSingleValued = isSingleValued;
             return syntaxAndType;
         }
 
@@ -169,7 +169,7 @@ namespace myADMonitor.Helpers
         {
             List<string> __tempAttributeValues = new();
             
-            switch (syntaxAndType.ADSyntax, syntaxAndType.isSingleValued)
+            switch (syntaxAndType.ADSyntax, syntaxAndType.IsSingleValued)
             {
                 case (ActiveDirectorySyntax.Bool, true):
                     __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString()!);                    

@@ -20,7 +20,5 @@
             // Default constructor
             // Integer properties are automatically initialized to 0
         }
-
-
     }
 }

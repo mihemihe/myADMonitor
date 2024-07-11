@@ -49,7 +49,6 @@
         RESTORED
     }
 
-    
     enum UserAccountControl : int
     {
         SCRIPT = 1,

@@ -51,7 +51,7 @@
                 //throw new ArgumentException(Resources.NotDNWithBinaryMessage, nameof(dnWithBinary));
             }
 
-            string dn = dnWithBinary.Substring(valueTrailingColonIndex + 1);
+            string dn = dnWithBinary[(valueTrailingColonIndex + 1)..];
             byte[] binary = dnWithBinary.HexToBinary(valueLeadingColonIndex + 1, valueTrailingColonIndex - valueLeadingColonIndex - 1);
             return new DNWithBinary(dn, binary);
         }
