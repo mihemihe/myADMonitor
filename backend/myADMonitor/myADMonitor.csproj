@@ -3,7 +3,11 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>Monitor.ico</ApplicationIcon>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Monitor.ico" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Config.Net" Version="5.1.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />

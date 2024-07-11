@@ -20,7 +20,7 @@ namespace myADMonitor.Models
 
         public Metaverse()
         {
-            Console.WriteLine("----------------------------- myADMonitor 0.5.004 ----------------------------");
+            Console.WriteLine("----------------------------- myADMonitor 0.6 ----------------------------");
             Console.WriteLine("Starting...");
 
             // Initialize collections
