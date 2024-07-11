@@ -28,6 +28,7 @@ myADMonitor is an open-source Active Directory changes tracking tool. It gives y
 - __Customizable:__ Config file to customize runtime settings, such as Domain Controller or custom LDAP query
 - __Front-end agnostic:__ Changes feed are presented as a REST API. Out-of-the-box front-end is based on a simple React site
 - __Calculated diff for multi-value attributes:__ Familiar Red/Green (+)/(-) formats to represent old and new values for multi-value attributes
+- __Results filtering:__ Allows to filter the results by objectClass (User, computer, OU, Contact, group, other...), by attribute name (showing the entire object modification or only that attribute) and object name
 
 ## Quick-Start
 
