@@ -99,6 +99,7 @@ namespace myADMonitor.Helpers
             }
 
             // Find reachable Domain Controller in the same site or use the config
+            //TODO: Find a domain controller in the next site if the current site has no DCs. Warn the user about it and request confirmation.
             if (!String.IsNullOrWhiteSpace(runConfig?.DomainControllerFQDN))
             {
                 connectedDC = ConnectDomainController(runConfig.DomainControllerFQDN);
@@ -233,7 +234,8 @@ namespace myADMonitor.Helpers
 
             HeaderDataInfo.DomainName = DomainNameFQDN;
             HeaderDataInfo.DomainControllerFQDN = connectedDC.Name;
-            HeaderDataInfo.Query = runConfig?.LDAPQuery ?? "No custom LDAP. Include ALL objects";
+            HeaderDataInfo.Query = string.IsNullOrEmpty(runConfig?.LDAPQuery) ? "No custom LDAP. Include ALL objects" : runConfig.LDAPQuery;
+
             UpdateHeaderDataInfo();
         } // End initialize
 
@@ -430,3 +432,4 @@ namespace myADMonitor.Helpers
 //TODO: explore AttributeScopeQuery  to search by members for groups
 //TODO: Add identification of other classes, such as the ones when you add a RODC
 //TODO: Handle updating an attribute with the same value. It is a change, but it show some feedback to the user
+//TODO: Slack integration, optionally SMTP integration
