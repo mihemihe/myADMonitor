@@ -310,9 +310,25 @@ namespace myADMonitor.Helpers
             {
                 foreach (DomainController dc in domainControllers)
                 {
-                    if (dc.Name.Equals(optionalDomainControllerFQDN, INSENSITIVE)) { return dc; }
+                    if (dc.Name.Equals(optionalDomainControllerFQDN, INSENSITIVE))
+                    {
+                        // Try to reach domain controller to see if it is reachable
+                        try
+                        {
+                            Console.WriteLine("SETTING\t Domain Controller FQDN:\t" + dc.Name);
+                            Console.WriteLine("SETTING\t AD Site:\t" + dc.SiteName);
+                            return dc;
+                        }
+                        catch (Exception)
+                        {
+                            Console.WriteLine("Error reaching {0} Domain Controller. Please check the name. Maybe only the host name was added instead of the FQDN (server, instead of server.this.ismydomain.local), or the server name is wrong, not reachable, or behind a firewall. Closing...", optionalDomainControllerFQDN);
+                            System.Environment.Exit(1);
+                        }
+
+                    }
+                        
                 }
-                Console.WriteLine("Error finding {0} Domain Controller on enumerated DCs list. Please check the name. Closing...", optionalDomainControllerFQDN);
+                Console.WriteLine("Error finding {0} Domain Controller on enumerated DCs list. Please check the name. Maybe only the host name was added instead of the FQDN (server, instead of server.this.ismydomain.local). Closing...", optionalDomainControllerFQDN);
                 System.Environment.Exit(1);
             }
             // ...otherwise try to find a reachable DC in the same site
