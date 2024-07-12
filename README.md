@@ -1,8 +1,32 @@
-# myADMonitor
+<h1 align="center">
+  <br>
+  myADMonitor
+  <br>
+</h1>
 
 myADMonitor is an open-source Active Directory changes tracking tool. It gives you almost real-time visibility on changes commited to your Active Directory domain.
 
-![alt text](/blob/Example01.png?raw=true)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/mihemihe/myADMonitor/total?style=plastic&logo=github)
+![GitHub License](https://img.shields.io/github/license/mihemihe/myADMonitor)
+![Static Badge](https://img.shields.io/badge/.NET-8.0-512BD4)
+![Static Badge](https://img.shields.io/badge/Typescript-3178C6?logo=typescript&logoColor=FFF)
+
+
+
+
+
+![alt text](/blob/Example01v06.png?raw=true)
+
+## What's Changed on v0.6 - July 2024
+
+* Complete frontend revamp based on React 18
+* Added Real-time filtering by object classes, object names or attribute names
+* Added a control to focus only on the attributes filtered, or show all updated attributes
+* Added a control to enable and disable the automatic refresh
+* Filters are consumed via Query, allowing the consumption of the data from other sources (Excel, Powershell, etc...)
+* Added performance metrics and ETA to the initial synchronization
+* Upgrade to .NET 8.0 for better security and performance
+* Several bug fixes
 
 
 ## Table of Contents
@@ -17,6 +41,7 @@ myADMonitor is an open-source Active Directory changes tracking tool. It gives y
 - __Customizable:__ Config file to customize runtime settings, such as Domain Controller or custom LDAP query
 - __Front-end agnostic:__ Changes feed are presented as a REST API. Out-of-the-box front-end is based on a simple React site
 - __Calculated diff for multi-value attributes:__ Familiar Red/Green (+)/(-) formats to represent old and new values for multi-value attributes
+- __Results filtering:__ Allows to filter the results by objectClass (User, computer, OU, Contact, group, other...), by attribute name (showing the entire object modification or only that attribute) and object name
 
 ## Quick-Start
 
