@@ -87,15 +87,28 @@ namespace myADMonitor.Helpers
 
             }
 
-            // Find current computer domain or fail
             try
             {
                 DomainNameFQDN = Domain.GetComputerDomain().Name;
+                Console.WriteLine("INFO\t" + "Successfully retrieved domain name: " + DomainNameFQDN);
             }
-            catch
+            catch (ActiveDirectoryObjectNotFoundException ex)
             {
-                Console.WriteLine("Error getting domain name from this computer. Closing...");
-                System.Environment.Exit(1);
+                Console.WriteLine("ERROR\t" + "Error: Active Directory object not found. Message: " + ex.Message);
+                Console.WriteLine("Closing...");
+                Environment.Exit(1);
+            }
+            catch (ActiveDirectoryOperationException ex)
+            {
+                Console.WriteLine("ERROR\t" + "Error: Active Directory operation failed. Message: " + ex.Message);
+                Console.WriteLine("Closing...");
+                Environment.Exit(1);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR\t" + "Unexpected error getting domain name from this computer. Message: " + ex.Message);
+                Console.WriteLine("Closing...");
+                Environment.Exit(1);
             }
 
             // Find reachable Domain Controller in the same site or use the config
