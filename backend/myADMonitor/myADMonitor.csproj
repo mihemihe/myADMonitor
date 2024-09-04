@@ -17,6 +17,9 @@
     <Content Update="wwwroot\assets\index-BfbMUa91.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Update="wwwroot\assets\index-Cdg00gbU.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="wwwroot\assets\index-DjszcjvQ.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
