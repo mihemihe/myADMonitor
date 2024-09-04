@@ -151,6 +151,33 @@ function App() {
     }));
   };
 
+  var hardCodedURLForDev = false;
+  var API_URL = "";
+  var API_URL_HEADER = "";
+  // http://localhost:5000/api/v1/adupdates/get-changes
+  // http://localhost:5000/api/v1/adupdates/headerdata
+  if (hardCodedURLForDev) {
+    API_URL = "http://localhost:5000/api/v1/adupdates/get-changes";
+    API_URL_HEADER = "http://localhost:5000/api/v1/adupdates/headerdata";
+    console.log(API_URL);
+    console.log(API_URL_HEADER);
+    console.log("URL hardcoded - Development");
+  } else {
+    API_URL =
+      window.location.protocol +
+      "//" +
+      window.location.host +
+      "/api/v1/adupdates/get-changes";
+    API_URL_HEADER =
+      window.location.protocol +
+      "//" +
+      window.location.host +
+      "/api/v1/adupdates/headerdata";
+    console.log(API_URL);
+    console.log(API_URL_HEADER);
+    console.log("URL no hardcoded - Production");
+  }
+
   // from chrome  http://localhost:5000/api/v1/adupdates/get-changes?objectclass=USER%2CGROUP&objectnamefilter=mail&attributeFilter=edu01&showOnlyFilteredAttribute=true
 
   const buildURL = () => {
@@ -194,7 +221,8 @@ function App() {
       exclusiveAttributeCheckboxState.exclusiveAttributeCheckbox.toString()
     );
 
-    const url = `http://localhost:5000/api/v1/adupdates/get-changes?${urlSearchParams.toString()}`;
+    const url = `${API_URL}?${urlSearchParams.toString()}`;
+    //const url = `http://localhost:5000/api/v1/adupdates/get-changes?${urlSearchParams.toString()}`;
     console.log("URL:", url);
     return url;
   };
@@ -227,7 +255,8 @@ function App() {
       try {
         console.log("Fetching header data...");
         const response = await fetch(
-          "http://localhost:5000/api/v1/adupdates/headerdata"
+          //"http://localhost:5000/api/v1/adupdates/headerdata"
+          API_URL_HEADER
         );
         if (!response.ok) {
           throw new Error("Failed to fetch header data");
