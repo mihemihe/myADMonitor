@@ -387,7 +387,7 @@ namespace myADMonitor.Helpers
 
         public static ADObjectClass GetClass(ResultPropertyValueCollection classes)
         {
-            ADObjectClass objectClass = ADObjectClass.UNKNOWN;
+            ADObjectClass objectClass = ADObjectClass.UNKNOWN; //TODO: Change this naive approach. For instance interOrgPerson appear just as user
 
             if (classes.Contains("computer"))
             {

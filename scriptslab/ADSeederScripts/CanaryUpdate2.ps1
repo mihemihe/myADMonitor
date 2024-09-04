@@ -6,6 +6,14 @@ $container = "OU=perf,DC=megacorp,DC=local"
 # concatenate but with a forward slash
 $dn = "CN=$sam,$container"
 
+# check if the user exists, and if so, delete it and recreate it with the minimum required properties and with the sAMAccountName "canary"
+if (Get-ADUser -Filter {sAMAccountName -eq $sam}) {
+    Remove-ADUser -Identity $dn -Confirm:$false
+}
+
+# create the user with the minimum required properties, on the $container, with a random password
+New-ADUser -SamAccountName $sam -Name $sam -GivenName $sam -Surname $sam `
+ -DisplayName $sam -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123!" -Force) -Enabled $true -ChangePasswordAtLogon $true -Path $container
 
 
 $attributeNames = @(
@@ -158,160 +166,16 @@ $attributeNames = @(
 )
 
 foreach ($attributeName in $attributeNames) {
-    set-adobject -Identity $dn -replace @{$attributeName=$attributeName}
+    set-adobject -Identity $dn -replace @{$attributeName=$attributeName + "b"}
 }
 
 
 
 
-set-adobject -Identity $dn -replace @{accountNameHistory="accountNameHistory" + "a"}
-set-adobject -Identity $dn -replace @{aCSPolicyName="aCSPolicyName"}
-set-adobject -Identity $dn -replace @{adminDescription="adminDescription"}
-set-adobject -Identity $dn -replace @{adminDisplayName="adminDisplayName"}
-set-adobject -Identity $dn -replace @{attributeCertificateAttribute="attributeCertificateAttribute"}
-set-adobject -Identity $dn -replace @{audio="audio"}
-set-adobject -Identity $dn -replace @{businessCategory="businessCategory"}
-set-adobject -Identity $dn -replace @{c="c"}
-set-adobject -Identity $dn -replace @{carLicense="carLicense"}
-set-adobject -Identity $dn -replace @{co="co"}
-set-adobject -Identity $dn -replace @{comment="comment"}
-set-adobject -Identity $dn -replace @{company="company"}
-set-adobject -Identity $dn -replace @{department="department"}
-set-adobject -Identity $dn -replace @{departmentNumber="departmentNumber"}
-set-adobject -Identity $dn -replace @{description="description"}
-set-adobject -Identity $dn -replace @{desktopProfile="desktopProfile"}
-set-adobject -Identity $dn -replace @{destinationIndicator="destinationIndicator"}
-set-adobject -Identity $dn -replace @{displayName="displayName"}
-set-adobject -Identity $dn -replace @{displayNamePrintable="displayNamePrintable"}
-set-adobject -Identity $dn -replace @{division="division"}
-set-adobject -Identity $dn -replace @{employeeID="employeeID"}
-set-adobject -Identity $dn -replace @{employeeNumber="employeeNumber"}
-set-adobject -Identity $dn -replace @{employeeType="employeeType"}
-set-adobject -Identity $dn -replace @{extensionName="extensionName"}
-set-adobject -Identity $dn -replace @{facsimileTelephoneNumber="facsimileTelephoneNumber"}
-set-adobject -Identity $dn -replace @{generationQualifier="generationQualifier"}
-set-adobject -Identity $dn -replace @{givenName="givenName"}
-set-adobject -Identity $dn -replace @{groupMembershipSAM="groupMembershipSAM"}
-set-adobject -Identity $dn -replace @{groupPriority="groupPriority"}
-set-adobject -Identity $dn -replace @{groupsToIgnore="groupsToIgnore"}
-set-adobject -Identity $dn -replace @{homeDirectory="homeDirectory"}
-set-adobject -Identity $dn -replace @{homeDrive="homeDrive"}
-set-adobject -Identity $dn -replace @{homePhone="homePhone"}
-set-adobject -Identity $dn -replace @{homePostalAddress="homePostalAddress"}
-set-adobject -Identity $dn -replace @{houseIdentifier="houseIdentifier"}
-set-adobject -Identity $dn -replace @{info="info"}
-set-adobject -Identity $dn -replace @{ipPhone="ipPhone"}
-set-adobject -Identity $dn -replace @{jpegPhoto="jpegPhoto"}
-set-adobject -Identity $dn -replace @{l="l"}
-set-adobject -Identity $dn -replace @{labeledURI="labeledURI"}
-set-adobject -Identity $dn -replace @{logonWorkstation="logonWorkstation"}
-set-adobject -Identity $dn -replace @{mail="mail"}
-set-adobject -Identity $dn -replace @{mhsORAddress="mhsORAddress"}
-set-adobject -Identity $dn -replace @{middleName="middleName"}
-set-adobject -Identity $dn -replace @{mobile="mobile"}
-set-adobject -Identity $dn -replace @{"mS-DS-ConsistencyGuid"="mS-DS-ConsistencyGuid"}
-set-adobject -Identity $dn -replace @{"msDRM-IdentityCertificate"="msDRM-IdentityCertificate"}
-set-adobject -Identity $dn -replace @{"msDS-ExternalDirectoryObjectId"="msDS-ExternalDirectoryObjectId"}
-set-adobject -Identity $dn -replace @{"msDS-PhoneticCompanyName"="msDS-PhoneticCompanyName"}
-set-adobject -Identity $dn -replace @{"msDS-PhoneticDepartment"="msDS-PhoneticDepartment"}
-set-adobject -Identity $dn -replace @{"msDS-PhoneticDisplayName"="msDS-PhoneticDisplayName"}
-set-adobject -Identity $dn -replace @{"msDS-PhoneticFirstName"="msDS-PhoneticFirstName"}
-set-adobject -Identity $dn -replace @{"msDS-PhoneticLastName"="msDS-PhoneticLastName"}
-set-adobject -Identity $dn -replace @{"msDS-SourceAnchor"="msDS-SourceAnchor"}
-set-adobject -Identity $dn -replace @{"msDS-SourceObjectDN"="msDS-SourceObjectDN"}
-set-adobject -Identity $dn -replace @{"msDS-SyncServerUrl"="msDS-SyncServerUrl"}
-set-adobject -Identity $dn -replace @{msExchAssistantName="msExchAssistantName"}
-set-adobject -Identity $dn -replace @{msExchHouseIdentifier="msExchHouseIdentifier"}
-set-adobject -Identity $dn -replace @{msExchLabeledURI="msExchLabeledURI"}
-set-adobject -Identity $dn -replace @{"msIIS-FTPDir"="msIIS-FTPDir"}
-set-adobject -Identity $dn -replace @{"msIIS-FTPRoot"="msIIS-FTPRoot"}
-set-adobject -Identity $dn -replace @{mSMQSignCertificates="mSMQSignCertificates"}
-set-adobject -Identity $dn -replace @{mSMQSignCertificatesMig="mSMQSignCertificatesMig"}
-set-adobject -Identity $dn -replace @{msNPCallingStationID="msNPCallingStationID"}
-set-adobject -Identity $dn -replace @{msNPSavedCallingStationID="msNPSavedCallingStationID"}
-set-adobject -Identity $dn -replace @{msPKIRoamingTimeStamp="msPKIRoamingTimeStamp"}
-set-adobject -Identity $dn -replace @{"msRADIUS-FramedIpv6Route"="msRADIUS-FramedIpv6Route"}
-set-adobject -Identity $dn -replace @{"msRADIUS-SavedFramedIpv6Route"="msRADIUS-SavedFramedIpv6Route"}
-set-adobject -Identity $dn -replace @{msRADIUSCallbackNumber="msRADIUSCallbackNumber"}
-set-adobject -Identity $dn -replace @{msRADIUSFramedRoute="msRADIUSFramedRoute"}
-set-adobject -Identity $dn -replace @{msRASSavedCallbackNumber="msRASSavedCallbackNumber"}
-set-adobject -Identity $dn -replace @{msRASSavedFramedRoute="msRASSavedFramedRoute"}
-set-adobject -Identity $dn -replace @{msSFU30Name="msSFU30Name"}
-set-adobject -Identity $dn -replace @{msSFU30NisDomain="msSFU30NisDomain"}
-set-adobject -Identity $dn -replace @{msTSHomeDirectory="msTSHomeDirectory"}
-set-adobject -Identity $dn -replace @{msTSHomeDrive="msTSHomeDrive"}
-set-adobject -Identity $dn -replace @{msTSInitialProgram="msTSInitialProgram"}
-set-adobject -Identity $dn -replace @{msTSLicenseVersion="msTSLicenseVersion"}
-set-adobject -Identity $dn -replace @{msTSLicenseVersion2="msTSLicenseVersion2"}
-set-adobject -Identity $dn -replace @{msTSLicenseVersion3="msTSLicenseVersion3"}
-set-adobject -Identity $dn -replace @{msTSLicenseVersion4="msTSLicenseVersion4"}
-set-adobject -Identity $dn -replace @{msTSLSProperty01="msTSLSProperty01"}
-set-adobject -Identity $dn -replace @{msTSLSProperty02="msTSLSProperty02"}
-set-adobject -Identity $dn -replace @{msTSManagingLS="msTSManagingLS"}
-set-adobject -Identity $dn -replace @{msTSManagingLS2="msTSManagingLS2"}
-set-adobject -Identity $dn -replace @{msTSManagingLS3="msTSManagingLS3"}
-set-adobject -Identity $dn -replace @{msTSManagingLS4="msTSManagingLS4"}
-set-adobject -Identity $dn -replace @{msTSProfilePath="msTSProfilePath"}
-set-adobject -Identity $dn -replace @{msTSProperty01="msTSProperty01"}
-set-adobject -Identity $dn -replace @{msTSProperty02="msTSProperty02"}
-set-adobject -Identity $dn -replace @{msTSWorkDirectory="msTSWorkDirectory"}
-set-adobject -Identity $dn -replace @{networkAddress="networkAddress"}
-set-adobject -Identity $dn -replace @{otherFacsimileTelephoneNumber="otherFacsimileTelephoneNumber"}
-set-adobject -Identity $dn -replace @{otherHomePhone="otherHomePhone"}
-set-adobject -Identity $dn -replace @{otherIpPhone="otherIpPhone"}
-set-adobject -Identity $dn -replace @{otherLoginWorkstations="otherLoginWorkstations"}
-set-adobject -Identity $dn -replace @{otherMailbox="otherMailbox"}
-set-adobject -Identity $dn -replace @{otherMobile="otherMobile"}
-set-adobject -Identity $dn -replace @{otherPager="otherPager"}
-set-adobject -Identity $dn -replace @{otherTelephone="otherTelephone"}
-set-adobject -Identity $dn -replace @{ou="ou"}
-set-adobject -Identity $dn -replace @{pager="pager"}
-set-adobject -Identity $dn -replace @{personalTitle="personalTitle"}
-set-adobject -Identity $dn -replace @{photo="photo"}
-set-adobject -Identity $dn -replace @{physicalDeliveryOfficeName="physicalDeliveryOfficeName"}
-set-adobject -Identity $dn -replace @{postalAddress="postalAddress"}
-set-adobject -Identity $dn -replace @{postalCode="postalCode"}
-set-adobject -Identity $dn -replace @{postOfficeBox="postOfficeBox"}
-set-adobject -Identity $dn -replace @{preferredLanguage="preferredLanguage"}
-set-adobject -Identity $dn -replace @{primaryInternationalISDNNumber="primaryInternationalISDNNumber"}
-set-adobject -Identity $dn -replace @{primaryTelexNumber="primaryTelexNumber"}
-set-adobject -Identity $dn -replace @{profilePath="profilePath"}
-set-adobject -Identity $dn -replace @{proxyAddresses="proxyAddresses"}
-set-adobject -Identity $dn -replace @{registeredAddress="registeredAddress"}
-set-adobject -Identity $dn -replace @{scriptPath="scriptPath"}
-set-adobject -Identity $dn -replace @{serialNumber="serialNumber"}
-set-adobject -Identity $dn -replace @{sn="sn"}
-set-adobject -Identity $dn -replace @{st="st"}
-set-adobject -Identity $dn -replace @{street="street"}
-set-adobject -Identity $dn -replace @{streetAddress="streetAddress"}
-set-adobject -Identity $dn -replace @{telephoneNumber="telephoneNumber"}
-set-adobject -Identity $dn -replace @{teletexTerminalIdentifier="teletexTerminalIdentifier"}
-set-adobject -Identity $dn -replace @{telexNumber="telexNumber"}
-set-adobject -Identity $dn -replace @{terminalServer="terminalServer"}
-set-adobject -Identity $dn -replace @{textEncodedORAddress="textEncodedORAddress"}
-set-adobject -Identity $dn -replace @{thumbnailLogo="thumbnailLogo"}
-set-adobject -Identity $dn -replace @{thumbnailPhoto="thumbnailPhoto"}
-set-adobject -Identity $dn -replace @{title="title"}
-set-adobject -Identity $dn -replace @{uid="uid"}
-set-adobject -Identity $dn -replace @{unixHomeDirectory="unixHomeDirectory"}
-set-adobject -Identity $dn -replace @{unixUserPassword="unixUserPassword"}
-set-adobject -Identity $dn -replace @{url="url"}
-set-adobject -Identity $dn -replace @{userCert="userCert"}
-set-adobject -Identity $dn -replace @{userCertificate="userCertificate"}
-set-adobject -Identity $dn -replace @{userParameters="userParameters"}
-set-adobject -Identity $dn -replace @{userPassword="userPassword"}
-set-adobject -Identity $dn -replace @{userPKCS12="userPKCS12"}
-set-adobject -Identity $dn -replace @{userPrincipalName="userPrincipalName"}
-set-adobject -Identity $dn -replace @{userSharedFolder="userSharedFolder"}
-set-adobject -Identity $dn -replace @{userSharedFolderOther="userSharedFolderOther"}
-set-adobject -Identity $dn -replace @{userSMIMECertificate="userSMIMECertificate"}
-set-adobject -Identity $dn -replace @{userWorkstations="userWorkstations"}
-set-adobject -Identity $dn -replace @{wbemPath="wbemPath"}
-set-adobject -Identity $dn -replace @{wWWHomePage="wWWHomePage"}
-set-adobject -Identity $dn -replace @{x121Address="x121Address"}
-set-adobject -Identity $dn -replace @{x500uniqueIdentifier="x500uniqueIdentifier"}
 
 
+
+# Attributes that cannot be changed directly below:
 
 #set-adobject -Identity $dn -replace @{accountExpires="accountExpires"} 
 #set-adobject -Identity $dn -replace @{adminCount="adminCount"}
@@ -1007,4 +871,164 @@ foreach ($attribute in $attributes.GetEnumerator()) {
     Write-Host "Setting $attributeName to $attributeValue"
     Set-ADObject -Identity $dn -Replace @{$attributeName = $attributeValue}
 }
+
+
+
+
+# Old set-adobject 
+set-adobject -Identity $dn -replace @{accountNameHistory="accountNameHistory" + "a"}
+set-adobject -Identity $dn -replace @{aCSPolicyName="aCSPolicyName"}
+set-adobject -Identity $dn -replace @{adminDescription="adminDescription"}
+set-adobject -Identity $dn -replace @{adminDisplayName="adminDisplayName"}
+set-adobject -Identity $dn -replace @{attributeCertificateAttribute="attributeCertificateAttribute"}
+set-adobject -Identity $dn -replace @{audio="audio"}
+set-adobject -Identity $dn -replace @{businessCategory="businessCategory"}
+set-adobject -Identity $dn -replace @{c="c"}
+set-adobject -Identity $dn -replace @{carLicense="carLicense"}
+set-adobject -Identity $dn -replace @{co="co"}
+set-adobject -Identity $dn -replace @{comment="comment"}
+set-adobject -Identity $dn -replace @{company="company"}
+set-adobject -Identity $dn -replace @{department="department"}
+set-adobject -Identity $dn -replace @{departmentNumber="departmentNumber"}
+set-adobject -Identity $dn -replace @{description="description"}
+set-adobject -Identity $dn -replace @{desktopProfile="desktopProfile"}
+set-adobject -Identity $dn -replace @{destinationIndicator="destinationIndicator"}
+set-adobject -Identity $dn -replace @{displayName="displayName"}
+set-adobject -Identity $dn -replace @{displayNamePrintable="displayNamePrintable"}
+set-adobject -Identity $dn -replace @{division="division"}
+set-adobject -Identity $dn -replace @{employeeID="employeeID"}
+set-adobject -Identity $dn -replace @{employeeNumber="employeeNumber"}
+set-adobject -Identity $dn -replace @{employeeType="employeeType"}
+set-adobject -Identity $dn -replace @{extensionName="extensionName"}
+set-adobject -Identity $dn -replace @{facsimileTelephoneNumber="facsimileTelephoneNumber"}
+set-adobject -Identity $dn -replace @{generationQualifier="generationQualifier"}
+set-adobject -Identity $dn -replace @{givenName="givenName"}
+set-adobject -Identity $dn -replace @{groupMembershipSAM="groupMembershipSAM"}
+set-adobject -Identity $dn -replace @{groupPriority="groupPriority"}
+set-adobject -Identity $dn -replace @{groupsToIgnore="groupsToIgnore"}
+set-adobject -Identity $dn -replace @{homeDirectory="homeDirectory"}
+set-adobject -Identity $dn -replace @{homeDrive="homeDrive"}
+set-adobject -Identity $dn -replace @{homePhone="homePhone"}
+set-adobject -Identity $dn -replace @{homePostalAddress="homePostalAddress"}
+set-adobject -Identity $dn -replace @{houseIdentifier="houseIdentifier"}
+set-adobject -Identity $dn -replace @{info="info"}
+set-adobject -Identity $dn -replace @{ipPhone="ipPhone"}
+set-adobject -Identity $dn -replace @{jpegPhoto="jpegPhoto"}
+set-adobject -Identity $dn -replace @{l="l"}
+set-adobject -Identity $dn -replace @{labeledURI="labeledURI"}
+set-adobject -Identity $dn -replace @{logonWorkstation="logonWorkstation"}
+set-adobject -Identity $dn -replace @{mail="mail"}
+set-adobject -Identity $dn -replace @{mhsORAddress="mhsORAddress"}
+set-adobject -Identity $dn -replace @{middleName="middleName"}
+set-adobject -Identity $dn -replace @{mobile="mobile"}
+set-adobject -Identity $dn -replace @{"mS-DS-ConsistencyGuid"="mS-DS-ConsistencyGuid"}
+set-adobject -Identity $dn -replace @{"msDRM-IdentityCertificate"="msDRM-IdentityCertificate"}
+set-adobject -Identity $dn -replace @{"msDS-ExternalDirectoryObjectId"="msDS-ExternalDirectoryObjectId"}
+set-adobject -Identity $dn -replace @{"msDS-PhoneticCompanyName"="msDS-PhoneticCompanyName"}
+set-adobject -Identity $dn -replace @{"msDS-PhoneticDepartment"="msDS-PhoneticDepartment"}
+set-adobject -Identity $dn -replace @{"msDS-PhoneticDisplayName"="msDS-PhoneticDisplayName"}
+set-adobject -Identity $dn -replace @{"msDS-PhoneticFirstName"="msDS-PhoneticFirstName"}
+set-adobject -Identity $dn -replace @{"msDS-PhoneticLastName"="msDS-PhoneticLastName"}
+set-adobject -Identity $dn -replace @{"msDS-SourceAnchor"="msDS-SourceAnchor"}
+set-adobject -Identity $dn -replace @{"msDS-SourceObjectDN"="msDS-SourceObjectDN"}
+set-adobject -Identity $dn -replace @{"msDS-SyncServerUrl"="msDS-SyncServerUrl"}
+set-adobject -Identity $dn -replace @{msExchAssistantName="msExchAssistantName"}
+set-adobject -Identity $dn -replace @{msExchHouseIdentifier="msExchHouseIdentifier"}
+set-adobject -Identity $dn -replace @{msExchLabeledURI="msExchLabeledURI"}
+set-adobject -Identity $dn -replace @{"msIIS-FTPDir"="msIIS-FTPDir"}
+set-adobject -Identity $dn -replace @{"msIIS-FTPRoot"="msIIS-FTPRoot"}
+set-adobject -Identity $dn -replace @{mSMQSignCertificates="mSMQSignCertificates"}
+set-adobject -Identity $dn -replace @{mSMQSignCertificatesMig="mSMQSignCertificatesMig"}
+set-adobject -Identity $dn -replace @{msNPCallingStationID="msNPCallingStationID"}
+set-adobject -Identity $dn -replace @{msNPSavedCallingStationID="msNPSavedCallingStationID"}
+set-adobject -Identity $dn -replace @{msPKIRoamingTimeStamp="msPKIRoamingTimeStamp"}
+set-adobject -Identity $dn -replace @{"msRADIUS-FramedIpv6Route"="msRADIUS-FramedIpv6Route"}
+set-adobject -Identity $dn -replace @{"msRADIUS-SavedFramedIpv6Route"="msRADIUS-SavedFramedIpv6Route"}
+set-adobject -Identity $dn -replace @{msRADIUSCallbackNumber="msRADIUSCallbackNumber"}
+set-adobject -Identity $dn -replace @{msRADIUSFramedRoute="msRADIUSFramedRoute"}
+set-adobject -Identity $dn -replace @{msRASSavedCallbackNumber="msRASSavedCallbackNumber"}
+set-adobject -Identity $dn -replace @{msRASSavedFramedRoute="msRASSavedFramedRoute"}
+set-adobject -Identity $dn -replace @{msSFU30Name="msSFU30Name"}
+set-adobject -Identity $dn -replace @{msSFU30NisDomain="msSFU30NisDomain"}
+set-adobject -Identity $dn -replace @{msTSHomeDirectory="msTSHomeDirectory"}
+set-adobject -Identity $dn -replace @{msTSHomeDrive="msTSHomeDrive"}
+set-adobject -Identity $dn -replace @{msTSInitialProgram="msTSInitialProgram"}
+set-adobject -Identity $dn -replace @{msTSLicenseVersion="msTSLicenseVersion"}
+set-adobject -Identity $dn -replace @{msTSLicenseVersion2="msTSLicenseVersion2"}
+set-adobject -Identity $dn -replace @{msTSLicenseVersion3="msTSLicenseVersion3"}
+set-adobject -Identity $dn -replace @{msTSLicenseVersion4="msTSLicenseVersion4"}
+set-adobject -Identity $dn -replace @{msTSLSProperty01="msTSLSProperty01"}
+set-adobject -Identity $dn -replace @{msTSLSProperty02="msTSLSProperty02"}
+set-adobject -Identity $dn -replace @{msTSManagingLS="msTSManagingLS"}
+set-adobject -Identity $dn -replace @{msTSManagingLS2="msTSManagingLS2"}
+set-adobject -Identity $dn -replace @{msTSManagingLS3="msTSManagingLS3"}
+set-adobject -Identity $dn -replace @{msTSManagingLS4="msTSManagingLS4"}
+set-adobject -Identity $dn -replace @{msTSProfilePath="msTSProfilePath"}
+set-adobject -Identity $dn -replace @{msTSProperty01="msTSProperty01"}
+set-adobject -Identity $dn -replace @{msTSProperty02="msTSProperty02"}
+set-adobject -Identity $dn -replace @{msTSWorkDirectory="msTSWorkDirectory"}
+set-adobject -Identity $dn -replace @{networkAddress="networkAddress"}
+set-adobject -Identity $dn -replace @{otherFacsimileTelephoneNumber="otherFacsimileTelephoneNumber"}
+set-adobject -Identity $dn -replace @{otherHomePhone="otherHomePhone"}
+set-adobject -Identity $dn -replace @{otherIpPhone="otherIpPhone"}
+set-adobject -Identity $dn -replace @{otherLoginWorkstations="otherLoginWorkstations"}
+set-adobject -Identity $dn -replace @{otherMailbox="otherMailbox"}
+set-adobject -Identity $dn -replace @{otherMobile="otherMobile"}
+set-adobject -Identity $dn -replace @{otherPager="otherPager"}
+set-adobject -Identity $dn -replace @{otherTelephone="otherTelephone"}
+set-adobject -Identity $dn -replace @{ou="ou"}
+set-adobject -Identity $dn -replace @{pager="pager"}
+set-adobject -Identity $dn -replace @{personalTitle="personalTitle"}
+set-adobject -Identity $dn -replace @{photo="photo"}
+set-adobject -Identity $dn -replace @{physicalDeliveryOfficeName="physicalDeliveryOfficeName"}
+set-adobject -Identity $dn -replace @{postalAddress="postalAddress"}
+set-adobject -Identity $dn -replace @{postalCode="postalCode"}
+set-adobject -Identity $dn -replace @{postOfficeBox="postOfficeBox"}
+set-adobject -Identity $dn -replace @{preferredLanguage="preferredLanguage"}
+set-adobject -Identity $dn -replace @{primaryInternationalISDNNumber="primaryInternationalISDNNumber"}
+set-adobject -Identity $dn -replace @{primaryTelexNumber="primaryTelexNumber"}
+set-adobject -Identity $dn -replace @{profilePath="profilePath"}
+set-adobject -Identity $dn -replace @{proxyAddresses="proxyAddresses"}
+set-adobject -Identity $dn -replace @{registeredAddress="registeredAddress"}
+set-adobject -Identity $dn -replace @{scriptPath="scriptPath"}
+set-adobject -Identity $dn -replace @{serialNumber="serialNumber"}
+set-adobject -Identity $dn -replace @{sn="sn"}
+set-adobject -Identity $dn -replace @{st="st"}
+set-adobject -Identity $dn -replace @{street="street"}
+set-adobject -Identity $dn -replace @{streetAddress="streetAddress"}
+set-adobject -Identity $dn -replace @{telephoneNumber="telephoneNumber"}
+set-adobject -Identity $dn -replace @{teletexTerminalIdentifier="teletexTerminalIdentifier"}
+set-adobject -Identity $dn -replace @{telexNumber="telexNumber"}
+set-adobject -Identity $dn -replace @{terminalServer="terminalServer"}
+set-adobject -Identity $dn -replace @{textEncodedORAddress="textEncodedORAddress"}
+set-adobject -Identity $dn -replace @{thumbnailLogo="thumbnailLogo"}
+set-adobject -Identity $dn -replace @{thumbnailPhoto="thumbnailPhoto"}
+set-adobject -Identity $dn -replace @{title="title"}
+set-adobject -Identity $dn -replace @{uid="uid"}
+set-adobject -Identity $dn -replace @{unixHomeDirectory="unixHomeDirectory"}
+set-adobject -Identity $dn -replace @{unixUserPassword="unixUserPassword"}
+set-adobject -Identity $dn -replace @{url="url"}
+set-adobject -Identity $dn -replace @{userCert="userCert"}
+set-adobject -Identity $dn -replace @{userCertificate="userCertificate"}
+set-adobject -Identity $dn -replace @{userParameters="userParameters"}
+set-adobject -Identity $dn -replace @{userPassword="userPassword"}
+set-adobject -Identity $dn -replace @{userPKCS12="userPKCS12"}
+set-adobject -Identity $dn -replace @{userPrincipalName="userPrincipalName"}
+set-adobject -Identity $dn -replace @{userSharedFolder="userSharedFolder"}
+set-adobject -Identity $dn -replace @{userSharedFolderOther="userSharedFolderOther"}
+set-adobject -Identity $dn -replace @{userSMIMECertificate="userSMIMECertificate"}
+set-adobject -Identity $dn -replace @{userWorkstations="userWorkstations"}
+set-adobject -Identity $dn -replace @{wbemPath="wbemPath"}
+set-adobject -Identity $dn -replace @{wWWHomePage="wWWHomePage"}
+set-adobject -Identity $dn -replace @{x121Address="x121Address"}
+set-adobject -Identity $dn -replace @{x500uniqueIdentifier="x500uniqueIdentifier"}
+
+
+
+
+
+
+
+
+
 #>
