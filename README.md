@@ -17,7 +17,7 @@ myADMonitor is an open-source Active Directory changes tracking tool. It gives y
 
 ![alt text](/blob/Example01v06.png?raw=true)
 
-## What's Changed on v0.6 - July 2024
+## What's Changed on v0.6 - July 2024 (Windows 2025 DC compatible)
 
 * Complete frontend revamp based on React 18
 * Added Real-time filtering by object classes, object names or attribute names
@@ -53,7 +53,7 @@ myADMonitor is an open-source Active Directory changes tracking tool. It gives y
 
 ## FAQ
 ### myADMonitor cannot find a close domain controller automatically
-myADMonitor will try to find a domain controller in the same AD Site, of no one is found, then it will try to reach any Domain Controller in the Domain. If none of the Domain Controllers are reachable, it will close. However, if you prefer to configure a fixed Domain Controller, edit the config.ini file tiwh your prefered Domain Controller.
+myADMonitor will try to find a domain controller in the same AD Site, of no one is found, then it will try to reach any Domain Controller in the Domain. If none of the Domain Controllers are reachable, it will close. However, if you prefer to configure a fixed Domain Controller, edit the config.ini file with your prefered Domain Controller.
 
 ### Does myADMonitor require special permissions to run?
 No, only read-only should be enough for most of the cases. 
