@@ -68,6 +68,12 @@ jobs:
         working-directory: backend\myADMonitor
         run: dotnet publish myADMonitor.csproj --configuration Release --self-contained true --runtime win-x64 /p:PublishSingleFile=true /p:PublishTrimmed=false /p:IncludeAllContentForSelfExtract=true --output ..\publish
         
+      - name: Verify publish folder contents
+        shell: pwsh
+        run: |
+          Write-Host "Published files:"
+          Get-ChildItem -Recurse backend\publish
+          
       - name: Upload published backend
         uses: actions/upload-artifact@v4
         with:
