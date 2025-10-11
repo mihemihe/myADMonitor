@@ -64,6 +64,7 @@
   <ItemGroup>
     <None Update="config.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </None>
   </ItemGroup>
 </Project>
