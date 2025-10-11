@@ -10,4 +10,19 @@ jobs:
     defaults:
       run:
         working-directory: frontends/React2024
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.4.0
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.15.0
+          cache: 'pnpm'
+          cache-dependency-path: frontends/React2024/pnpm-lock.yaml
+        
   
