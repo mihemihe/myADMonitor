@@ -66,7 +66,7 @@ jobs:
 
       - name: Publish backend app
         working-directory: backend\myADMonitor
-        run: dotnet publish --configuration Release --output ..\publish --no-build
+        run: dotnet publish myADMonitor.csproj --configuration Release --self-contained true --runtime win-x64 /p:PublishSingleFile=true /p:PublishTrimmed=false /p:IncludeAllContentForSelfExtract=true --output ..\publish
         
       - name: Upload published backend
         uses: actions/upload-artifact@v4
