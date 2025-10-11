@@ -1,0 +1,13 @@
+name: Build React2024 frontend
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_job:
+    name: Build the react frontend
+    runs-on: windows-2022
+    defaults:
+      run:
+        working-directory: frontends/React2024
+  
