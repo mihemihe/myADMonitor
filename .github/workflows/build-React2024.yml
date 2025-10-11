@@ -1,10 +1,10 @@
-name: Build React2024 frontend
+name: Build solution
 
 on:
   workflow_dispatch:
 
 jobs:
-  build_job:
+  build_job_react:
     name: Build the react frontend
     runs-on: windows-2022
     defaults:
@@ -37,5 +37,80 @@ jobs:
           name: react2024-dist
           path: frontends/React2024/dist
           if-no-files-found: error
+  build_job_backend:
+    name: Build the ASP.NET backend
+    runs-on: windows-2022
+    needs: build_job_react
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
         
-  
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          
+      - name: Download React build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: react2024-dist
+          path: backend\myADMonitor\wwwroot
+          
+      - name: Restore dependencies
+        working-directory: backend\myADMonitor
+        run: dotnet restore
+        
+      - name: Build solution (Release)
+        working-directory: backend\myADMonitor
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish backend app
+        working-directory: backend\myADMonitor
+        run: dotnet publish --configuration Release --output ..\publish --no-build
+        
+      - name: Upload published backend
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-publish
+          path: backend\publish
+
+  package_zip:
+    name: Package final zip
+    runs-on: windows-2022
+    needs: build_job_backend
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Download backend publish
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-publish
+          path: build\backend
+
+      - name: Get version from csproj
+        id: get_version
+        shell: pwsh
+        run: |
+          [xml]$xml = Get-Content "backend\myADMonitor\myADMonitor.csproj"
+          $version = $xml.Project.PropertyGroup.Version
+          if (-not $version) {
+            Write-Host "No <Version> found in csproj, using 0.0.0"
+            $version = "0.0.0"
+          }
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Create final zip
+        id: create_zip
+        shell: pwsh
+        run: |
+          $v = '${{ steps.get_version.outputs.version }}'
+          $zipName = "myADMonitor-v$v-singlefile.zip"
+          Compress-Archive -Path "build\backend\*" -DestinationPath $zipName
+          echo "zipName=$zipName" >> $env:GITHUB_OUTPUT
+
+      - name: Upload final zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: myADMonitor-final
+          path: ${{ steps.create_zip.outputs.zipName }}
