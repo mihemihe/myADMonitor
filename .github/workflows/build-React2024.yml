@@ -92,13 +92,22 @@ jobs:
         id: get_version
         shell: pwsh
         run: |
-          [xml]$xml = Get-Content "backend\myADMonitor\myADMonitor.csproj"
-          $version = $xml.Project.PropertyGroup.Version
+          Write-Host "🟦 Starting version extraction from csproj..."
+          $csproj = "backend\myADMonitor\myADMonitor.csproj"
+          Write-Host "Reading file: $csproj"
+
+          [xml]$xml = Get-Content $csproj
+          $version = ($xml.Project.PropertyGroup | ForEach-Object { $_.Version } | Where-Object { $_ -and $_.Trim() } | Select-Object -First 1)
+
           if (-not $version) {
-            Write-Host "No <Version> found in csproj, using 0.0.0"
-            $version = "0.0.0"
+          $version = "0.0.${{ github.run_number }}"
+          Write-Host "⚠️  No <Version> tag found, using fallback: $version"
+          } else {
+          Write-Host "✅ Found <Version>: $version"
           }
-          echo "version=$version" >> $env:GITHUB_OUTPUT
+
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          Write-Host "✅ Version value written to GITHUB_OUTPUT: $version"
 
       - name: Create final zip
         id: create_zip
