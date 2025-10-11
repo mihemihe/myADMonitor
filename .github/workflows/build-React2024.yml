@@ -24,5 +24,18 @@ jobs:
           node-version: 20.15.0
           cache: 'pnpm'
           cache-dependency-path: frontends/React2024/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        run: pnpm build
+
+      - name: Upload compiled frontend
+        uses: actions/upload-artifact@v4
+        with:
+          name: react2024-dist
+          path: frontends/React2024/dist
+          if-no-files-found: error
         
   
