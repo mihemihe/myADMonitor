@@ -1,4 +1,4 @@
-name: Build solution
+name: 🛠️ Automatic build and publish
 
 on:
   workflow_dispatch:
