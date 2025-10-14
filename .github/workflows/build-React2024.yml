@@ -67,7 +67,19 @@ jobs:
       - name: Publish backend app
         working-directory: backend\myADMonitor
         run: dotnet publish myADMonitor.csproj --configuration Release --self-contained true --runtime win-x64 /p:PublishSingleFile=true /p:PublishTrimmed=false /p:IncludeAllContentForSelfExtract=true --output ..\publish
+
         
+      - name: Ensure config.ini is included in publish output
+        shell: pwsh
+        run: |
+          $source = "backend\myADMonitor\config.ini"
+          $destination = "backend\publish\config.ini"
+          Write-Host "Copying $source to $destination"
+          Copy-Item -Path $source -Destination $destination -Force
+          if (-not (Test-Path $destination)) {
+            throw "config.ini was not copied to the publish directory."
+          }
+
       - name: Verify publish folder contents
         shell: pwsh
         run: |
