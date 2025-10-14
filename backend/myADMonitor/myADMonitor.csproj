@@ -4,7 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>Monitor.ico</ApplicationIcon>
-    <Version>0.6.1</Version>
+    <Version>0.6.2</Version>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Monitor.ico" />
