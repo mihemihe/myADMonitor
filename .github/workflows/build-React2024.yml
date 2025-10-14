@@ -66,7 +66,7 @@ jobs:
 
       - name: Publish backend app
         working-directory: backend\myADMonitor
-        run: dotnet publish myADMonitor.csproj --configuration Release --self-contained true --runtime win-x64 /p:PublishSingleFile=true /p:PublishTrimmed=false /p:IncludeAllContentForSelfExtract=true --output ..\publish
+        run: dotnet publish myADMonitor.csproj --configuration Release --self-contained true --runtime win-x64 /p:PublishSingleFile=true /p:PublishTrimmed=false /p:IncludeAllContentForSelfExtract=false --output ..\publish
 
         
       - name: Ensure config.ini is included in publish output
