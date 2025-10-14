@@ -17,6 +17,9 @@ myADMonitor is an open-source Active Directory changes tracking tool. It gives y
 
 
 ![alt text](/blob/Example01v06.png?raw=true)
+## What's Changed on v0.6.2 - October 2025
+
+* Added AttributesFiltered to config.ini. This feature allows the user to filter spammy attributes so the interface does not get cluttered by irrelevant changes.
 
 ## What's Changed on v0.6 - July 2024 (Windows 2025 DC compatible)
 
