@@ -97,6 +97,31 @@ jobs:
           name: backend-publish
           path: build\backend
 
+      - name: Remove files excluded from release package
+        shell: pwsh
+        run: |
+          $filesToRemove = @(
+            "appsettings.Development.json",
+            "aspnetcorev2_inprocess.dll",
+            "myADMonitor.pdb",
+            "myADMonitor.staticwebassets.endpoints.json",
+            "web.config"
+          )
+
+          foreach ($file in $filesToRemove) {
+            $matchedFiles = Get-ChildItem -Path "build\backend" -Recurse -Filter $file -File -ErrorAction SilentlyContinue
+
+            if (-not $matchedFiles) {
+              Write-Host "ℹ️  File not found (skipping): $file"
+              continue
+            }
+
+            foreach ($match in $matchedFiles) {
+              Remove-Item $match.FullName -Force
+              Write-Host "🗑️  Removed: $($match.FullName)"
+            }
+          }
+
       - name: Get version from csproj
         id: get_version
         shell: pwsh
