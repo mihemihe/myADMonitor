@@ -461,7 +461,7 @@ function Sidebar({
     <aside className="sidebar">
       <div className="window">
         <div className="window-form">
-          <div className="title-bar">myADMonitor - v0.6</div>
+          <div className="title-bar">myADMonitor - v0.6.2</div>
           <div className="groupbox">
             <span className="groupbox-title">Sync settings</span>
             <div>
