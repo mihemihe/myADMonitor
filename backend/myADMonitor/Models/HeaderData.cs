@@ -14,6 +14,7 @@
         public int TrackedOUs { get; set; }
         public int TrackedGroups { get; set; }
         public int TrackedOther { get; set; }
+        public List<string> AttributesFiltered { get; set; } = new();
 
         public HeaderData()
         {

@@ -24,6 +24,7 @@ namespace myADMonitor.Helpers
         public static ICustomConfig? runConfig;
         public static bool listenAllIPs;
         public static int tCPPort;
+        private static HashSet<string> filteredAttributes = new(StringComparer.OrdinalIgnoreCase);
 
         public static void Start()
         {
@@ -58,6 +59,7 @@ namespace myADMonitor.Helpers
                     .UseIniFile(configFilePath) //TODO: Stop if config file is not found
                     .Build();
                 //Console.WriteLine(runConfig);
+                LoadFilteredAttributesFromConfig();
             }
             //TODO: Set all config settings here, right after reading the config file.
         }
@@ -290,7 +292,80 @@ namespace myADMonitor.Helpers
             HeaderDataInfo.LatestUSNDetected = highestUSN;
             HeaderDataInfo.ChangesDetected = _metaverse.Changes.Count;
             HeaderDataInfo.ObjectsInDatabase = _metaverse.AllObjects.Count;
+            HeaderDataInfo.AttributesFiltered = filteredAttributes.OrderBy(a => a, StringComparer.OrdinalIgnoreCase).ToList();
         }
+
+        private static void LoadFilteredAttributesFromConfig()
+        {
+            var newSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            string? configuredValue = runConfig?.AttributesFiltered;
+
+            if (!string.IsNullOrWhiteSpace(configuredValue))
+            {
+                string[] configuredAttributes = configuredValue.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                foreach (string attribute in configuredAttributes)
+                {
+                    string normalizedAttribute = NormalizeAttributeName(attribute);
+                    if (!string.IsNullOrEmpty(normalizedAttribute))
+                    {
+                        newSet.Add(normalizedAttribute);
+                    }
+                }
+            }
+
+            filteredAttributes = newSet;
+
+            var orderedAttributes = filteredAttributes
+                .OrderBy(a => a, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (orderedAttributes.Count > 0)
+            {
+                Console.WriteLine("INFO\tAttributes filtered:\t" + string.Join(", ", orderedAttributes));
+            }
+            else
+            {
+                Console.WriteLine("INFO\tAttributes filtered:\tNone");
+            }
+
+            HeaderDataInfo.AttributesFiltered = orderedAttributes;
+        }
+
+        public static bool ShouldIgnoreAttribute(string attributeName)
+        {
+            if (string.IsNullOrWhiteSpace(attributeName))
+            {
+                return false;
+            }
+
+            string normalizedAttribute = NormalizeAttributeName(attributeName);
+            if (string.IsNullOrEmpty(normalizedAttribute))
+            {
+                return false;
+            }
+
+            var localFilteredAttributes = filteredAttributes;
+            return localFilteredAttributes.Contains(normalizedAttribute);
+        }
+
+        private static string NormalizeAttributeName(string attributeName)
+        {
+            if (string.IsNullOrWhiteSpace(attributeName))
+            {
+                return string.Empty;
+            }
+
+            string trimmedAttribute = attributeName.Trim();
+            int rangeSeparatorIndex = trimmedAttribute.IndexOf(';');
+            if (rangeSeparatorIndex > 0)
+            {
+                trimmedAttribute = trimmedAttribute[..rangeSeparatorIndex];
+            }
+
+            return trimmedAttribute;
+        }
+
+
 
         public static void FetchDeltaChanges()
         {

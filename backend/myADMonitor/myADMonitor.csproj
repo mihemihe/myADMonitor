@@ -24,6 +24,9 @@
     <Content Update="wwwroot\assets\index-DjszcjvQ.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Update="wwwroot\assets\index-DyrUF9_k.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="wwwroot\assets\index.14902850.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -4,6 +4,7 @@ interface HeaderData {
   domainName: string;
   domainControllerFQDN: string;
   query: string;
+  attributesFiltered: string[];
   objectsInDatabase: number;
   changesDetected: number;
   latestUSNDetected: number;
@@ -89,6 +90,7 @@ function App() {
     domainName: "",
     domainControllerFQDN: "",
     query: "",
+    attributesFiltered: [],
     objectsInDatabase: 0,
     changesDetected: 0,
     latestUSNDetected: 0,
@@ -465,6 +467,15 @@ function Sidebar({
             <div>
               <span className="labelLdap">Current LDAP Query:</span>
               <span className="labelLdapText">{query}</span>
+            </div>
+
+            <div>
+              <span className="labelLdap">Filtered attributes:</span>
+              <span className="labelLdapText">
+                {HeaderDataProp.attributesFiltered.length > 0
+                  ? HeaderDataProp.attributesFiltered.join(", ")
+                  : "None"}
+              </span>
             </div>
 
             <div>

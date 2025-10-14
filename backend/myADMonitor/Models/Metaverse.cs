@@ -83,6 +83,10 @@ namespace myADMonitor.Models
                 // -2- For each property in the object...
                 foreach (string propertyName in _searchResult.Properties.PropertyNames)
                 {
+                    if (DirectoryState.ShouldIgnoreAttribute(propertyName))
+                    {
+                        continue;
+                    }
                     //Console.WriteLine(propertyName);
                     switch (propertyName)
                     {
@@ -157,18 +161,30 @@ namespace myADMonitor.Models
                 if (specialCaseMember == true)
                 {
                     int position = forgedADObject.AttributeNames.IndexOf("member");
-                    forgedADObject.AttributeNames.RemoveAt(position);
-                    forgedADObject.AttributeValues.RemoveAt(position);
+                    if (position >= 0)
+                    {
+                        forgedADObject.AttributeNames.RemoveAt(position);
+                        forgedADObject.AttributeValues.RemoveAt(position);
+                    }
                     int position2 = forgedADObject.AttributeNames.IndexOf("memberComplete");
-                    forgedADObject.AttributeNames[position2] = "member";
+                    if (position2 >= 0)
+                    {
+                        forgedADObject.AttributeNames[position2] = "member";
+                    }
                 }
                 if (specialCasemsds_revealedusers == true)
                 {
                     int position = forgedADObject.AttributeNames.IndexOf("msds-revealedusers");
-                    forgedADObject.AttributeNames.RemoveAt(position);
-                    forgedADObject.AttributeValues.RemoveAt(position);
+                    if (position >= 0)
+                    {
+                        forgedADObject.AttributeNames.RemoveAt(position);
+                        forgedADObject.AttributeValues.RemoveAt(position);
+                    }
                     int position2 = forgedADObject.AttributeNames.IndexOf("msds-revealedusersComplete");
-                    forgedADObject.AttributeNames[position2] = "msds-revealedusers";
+                    if (position2 >= 0)
+                    {
+                        forgedADObject.AttributeNames[position2] = "msds-revealedusers";
+                    }
                 }
                 // -4- check if the objects is in the metaverse, and add/remove/update attributes from the change happening.... Update by replacing the metaverse object
                 // TODO: Change to TryGetValue for huge gains and avoid double lookup
@@ -187,9 +203,13 @@ namespace myADMonitor.Models
                         var _guid = objectGuid;
                         var _newAttribute = newAttribute;
                         var _fromEmptyOldValues = new List<string>();
-                        var _newValues = forgedADObject.AttributeValues[forgedADObject.AttributeNames.IndexOf(newAttribute)];
-                        var _whenDetected = DateTime.Now;
-                        var _whenChanged = forgedADObject.AttributeValues[forgedADObject.AttributeNames.IndexOf("whenchanged")][0];
+                        int newAttributeIndex = forgedADObject.AttributeNames.IndexOf(newAttribute);
+                        var _newValues = newAttributeIndex >= 0 ? forgedADObject.AttributeValues[newAttributeIndex] : new List<string>();
+                        int whenChangedIndex = forgedADObject.AttributeNames.IndexOf("whenchanged");
+                        var _whenChanged = whenChangedIndex >= 0 && forgedADObject.AttributeValues[whenChangedIndex].Count > 0
+                            ? forgedADObject.AttributeValues[whenChangedIndex][0]
+                            : string.Empty;
+                        var _whenDetected = DateTime.Now;                        
                         var _currentUSN = forgedADObject.USN;
                         var _singleOrMulti = LDAPUtil.GetProperySyntaxAndType(newAttribute).IsSingleValued;
                         var _fromNewOrFromChange = FromNewOrFromChange.FROM_CHANGE;
@@ -202,10 +222,14 @@ namespace myADMonitor.Models
                     {
                         var _guid = objectGuid;
                         var _emptiedAttribute = emptiedAttribute;
-                        var _oldValues = value.AttributeValues[value.AttributeNames.IndexOf(emptiedAttribute)];
+                        int emptiedAttributeIndex = value.AttributeNames.IndexOf(emptiedAttribute);
+                        var _oldValues = emptiedAttributeIndex >= 0 ? value.AttributeValues[emptiedAttributeIndex] : new List<string>();
                         var _NewValuesEmpty = new List<string>(); // New values is just the attribute empty
                         var _whenDetected = DateTime.Now;
-                        var _whenChanged = forgedADObject.AttributeValues[forgedADObject.AttributeNames.IndexOf("whenchanged")][0];
+                        int whenChangedIndex = forgedADObject.AttributeNames.IndexOf("whenchanged");
+                        var _whenChanged = whenChangedIndex >= 0 && forgedADObject.AttributeValues[whenChangedIndex].Count > 0
+                            ? forgedADObject.AttributeValues[whenChangedIndex][0]
+                            : string.Empty;
                         var _currentUSN = forgedADObject.USN;
                         var _singleOrMulti = LDAPUtil.GetProperySyntaxAndType(emptiedAttribute).IsSingleValued;
                         var _fromNewOrFromChange = FromNewOrFromChange.FROM_CHANGE;
@@ -216,17 +240,22 @@ namespace myADMonitor.Models
                     // -5c- Update attributes changed on the object...
                     foreach (var commonAttribute in commonAttributes)
                     {
-                        List<string> oldValues = value.AttributeValues[value.AttributeNames.IndexOf(commonAttribute)];
-                        List<string> newValues = forgedADObject.AttributeValues[forgedADObject.AttributeNames.IndexOf(commonAttribute)];
+                        int oldAttributeIndex = value.AttributeNames.IndexOf(commonAttribute);
+                        int newAttributeIndex = forgedADObject.AttributeNames.IndexOf(commonAttribute);
+                        List<string> oldValues = oldAttributeIndex >= 0 ? value.AttributeValues[oldAttributeIndex] : new List<string>();
+                        List<string> newValues = newAttributeIndex >= 0 ? forgedADObject.AttributeValues[newAttributeIndex] : new List<string>();
                         // Common attribute but now different value
                         if (!oldValues.SequenceEqual(newValues))  //TODO: The order of the items alter the equality comparasion. Need to sort first here or somewhere else
                         {
                             var _guid = objectGuid;
                             var _commonAttribute = commonAttribute;
-                            var _oldValues = value.AttributeValues[value.AttributeNames.IndexOf(commonAttribute)];
-                            var _newValues = forgedADObject.AttributeValues[forgedADObject.AttributeNames.IndexOf(commonAttribute)];
+                            var _oldValues = oldAttributeIndex >= 0 ? value.AttributeValues[oldAttributeIndex] : new List<string>();
+                            var _newValues = newAttributeIndex >= 0 ? forgedADObject.AttributeValues[newAttributeIndex] : new List<string>();
                             var _whenDetected = DateTime.Now;
-                            var _whenChanged = forgedADObject.AttributeValues[forgedADObject.AttributeNames.IndexOf("whenchanged")][0];
+                            int whenChangedIndex = forgedADObject.AttributeNames.IndexOf("whenchanged");
+                            var _whenChanged = whenChangedIndex >= 0 && forgedADObject.AttributeValues[whenChangedIndex].Count > 0
+                                ? forgedADObject.AttributeValues[whenChangedIndex][0]
+                                : string.Empty;
                             var _currentUSN = forgedADObject.USN; //TODO: find how many times this USN is used, I have the impression is not required.                            
                             var _singleOrMulti = LDAPUtil.GetProperySyntaxAndType(commonAttribute).IsSingleValued;
                             var _fromNewOrFromChange = FromNewOrFromChange.FROM_CHANGE;
@@ -260,9 +289,13 @@ namespace myADMonitor.Models
                             var _guid = objectGuid;
                             var _newAttribute = newAttribute;
                             var _fromEmptyOldValues = new List<string>();
-                            var _newValues = forgedADObject.AttributeValues[forgedADObject.AttributeNames.IndexOf(newAttribute)];
+                            int newAttributeIndex = forgedADObject.AttributeNames.IndexOf(newAttribute);
+                            var _newValues = newAttributeIndex >= 0 ? forgedADObject.AttributeValues[newAttributeIndex] : new List<string>();
                             var _whenDetected = DateTime.Now;
-                            var _whenChanged = forgedADObject.AttributeValues[forgedADObject.AttributeNames.IndexOf("whenchanged")][0];
+                            int whenChangedIndex = forgedADObject.AttributeNames.IndexOf("whenchanged");
+                            var _whenChanged = whenChangedIndex >= 0 && forgedADObject.AttributeValues[whenChangedIndex].Count > 0
+                                ? forgedADObject.AttributeValues[whenChangedIndex][0]
+                                : string.Empty;
                             var _currentUSN = forgedADObject.USN;
                             var _singleOrMulti = LDAPUtil.GetProperySyntaxAndType(newAttribute).IsSingleValued;
                             var _fromNewOrFromChange = FromNewOrFromChange.FROM_NEW;
