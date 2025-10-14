@@ -143,17 +143,23 @@ jobs:
           "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           Write-Host "✅ Version value written to GITHUB_OUTPUT: $version"
 
-      - name: Create final zip
-        id: create_zip
+      - name: Prepare final package folder
+        id: prepare_package
         shell: pwsh
         run: |
           $v = '${{ steps.get_version.outputs.version }}'
-          $zipName = "myADMonitor-v$v-singlefile.zip"
-          Compress-Archive -Path "build\backend\*" -DestinationPath $zipName
-          echo "zipName=$zipName" >> $env:GITHUB_OUTPUT
+          $packageDir = "build\myADMonitor-v$v-singlefile"
+          if (Test-Path $packageDir) {
+            Remove-Item $packageDir -Recurse -Force
+          }
 
-      - name: Upload final zip
+          New-Item -ItemType Directory -Path $packageDir | Out-Null
+          Copy-Item -Path "build\backend\*" -Destination $packageDir -Recurse
+
+          "packageDir=$packageDir" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          
+      - name: Upload final artifact
         uses: actions/upload-artifact@v4
         with:
-          name: myADMonitor-final
-          path: ${{ steps.create_zip.outputs.zipName }}
+          name: myADMonitor-v${{ steps.get_version.outputs.version }}-singlefile
+          path: ${{ steps.prepare_package.outputs.packageDir }}
