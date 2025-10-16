@@ -17,6 +17,11 @@ myADMonitor is an open-source Active Directory changes tracking tool. It gives y
 
 
 ![alt text](/blob/Example01v06.png?raw=true)
+## What's Changed on v0.6.4 - October 2025
+
+* Lock the sidebar on the UI so it does not scroll with the content and stays always visible.
+* Added UseLocalTime parameter to config.ini, with values **utc** and **local**, for UTC and local time where myADMonitor is running respectively.
+
 ## What's Changed on v0.6.2 - October 2025
 
 * Added AttributesFiltered to config.ini. This feature allows the user to filter spammy attributes so the interface does not get cluttered by irrelevant changes.
