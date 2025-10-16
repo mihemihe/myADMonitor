@@ -15,7 +15,7 @@ myADMonitor is an open-source Active Directory changes tracking tool. It gives y
 
 
 
-
+**Tip:** You can click the image below to open it in full resolution ⬇️
 ![alt text](/blob/Example01v064.png?raw=true)
 ## What's Changed on v0.6.4 - October 2025
 
