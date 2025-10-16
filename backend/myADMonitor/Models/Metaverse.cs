@@ -1,4 +1,5 @@
 ﻿using myADMonitor.Helpers;
+using System.Diagnostics;
 using System.DirectoryServices;
 using System.Globalization;
 
@@ -83,6 +84,7 @@ namespace myADMonitor.Models
                 // -2- For each property in the object...
                 foreach (string propertyName in _searchResult.Properties.PropertyNames)
                 {
+                    //if (propertyName == "whenchanged") Debugger.Break();
                     if (DirectoryState.ShouldIgnoreAttribute(propertyName))
                     {
                         continue;

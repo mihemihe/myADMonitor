@@ -194,14 +194,8 @@ namespace myADMonitor.Helpers
                     break;
                 case (ActiveDirectorySyntax.GeneralizedTime, true):
                     DateTime tempTime = (DateTime)_expandedPropertiesCollection[0];
-                    string tempTimeString =
-                        tempTime.Year.ToString() + "/" +
-                        tempTime.Month.ToString() + "/" +
-                        tempTime.Day.ToString() + " " +
-                        tempTime.Hour.ToString() + ":" +
-                        tempTime.Minute.ToString() + ":" +
-                        tempTime.Second.ToString() + " UTC";
-                    __tempAttributeValues.Add(tempTimeString);
+                    __tempAttributeValues.Add(FormatGeneralizedTime(tempTime));
+
                     break;
                 case (ActiveDirectorySyntax.IA5String, true):
                     __tempAttributeValues.Add(_expandedPropertiesCollection[0].ToString() + "(IA5)");                    
@@ -251,7 +245,7 @@ namespace myADMonitor.Helpers
                     __tempAttributeValues.Add(sid.ToString());
                     break;
                 case (ActiveDirectorySyntax.UtcTime, true): // TODO: find an attribute with this syntax to test. whenChanged does not use this syntax
-                    Console.WriteLine("STOP");
+                    Console.WriteLine("UtcTime syntax found");
                     break;
                     
                 // vvvvvvvvvvvvvvvvvv MULTIVALUES BELOW vvvvvvvvvvvvv
@@ -303,14 +297,7 @@ namespace myADMonitor.Helpers
                 case (ActiveDirectorySyntax.GeneralizedTime, false):
                     foreach (DateTime timestamp in _expandedPropertiesCollection)
                     {
-                        string tempTimeString2 =
-                            timestamp.Year.ToString() + "/" +
-                            timestamp.Month.ToString() + "/" +
-                            timestamp.Day.ToString() + " " +
-                            timestamp.Hour.ToString() + ":" +
-                            timestamp.Minute.ToString() + ":" +
-                            timestamp.Second.ToString() + " UTC";
-                        __tempAttributeValues.Add(tempTimeString2);
+                        __tempAttributeValues.Add(FormatGeneralizedTime(timestamp));
                     }
                     break;
                 case (ActiveDirectorySyntax.IA5String, false):
@@ -369,7 +356,8 @@ namespace myADMonitor.Helpers
                     break;
                 case (ActiveDirectorySyntax.Sid, false):                    
                     break;
-                case (ActiveDirectorySyntax.UtcTime, false):                    
+                case (ActiveDirectorySyntax.UtcTime, false): // TODO: find an attribute with this syntax to test. whenChanged does not use this syntax
+                    Console.WriteLine("UtcTime syntax found");
                     break;
                     
                 //ADDED LATER 
@@ -383,6 +371,35 @@ namespace myADMonitor.Helpers
             }
 
             return __tempAttributeValues;
+        }
+
+        private static string FormatGeneralizedTime(DateTime timestamp)
+        {
+            DateTime utcTime = timestamp.Kind switch
+            {
+                DateTimeKind.Utc => timestamp,
+                DateTimeKind.Local => timestamp.ToUniversalTime(),
+                _ => DateTime.SpecifyKind(timestamp, DateTimeKind.Utc)
+            };
+
+            if (!DirectoryState.UseLocalTime)
+            {
+                return $"{utcTime:yyyy/M/d HH:mm:ss} UTC";
+            }
+
+            TimeZoneInfo localZone = TimeZoneInfo.Local;
+            DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, localZone);
+            //string suffix = localZone.IsDaylightSavingTime(localTime) ? localZone.DaylightName : localZone.StandardName;
+            TimeSpan offset = localZone.GetUtcOffset(localTime);
+
+            // Build suffix like "GMT+02:00" or "GMT-05:00"
+            string sign = offset.TotalMinutes >= 0 ? "+" : "-";
+            int hours = Math.Abs(offset.Hours);
+            int minutes = Math.Abs(offset.Minutes);
+            string suffix = $"GMT{sign}{hours:D2}";
+            
+
+            return $"{localTime:yyyy/M/d HH:mm:ss} {suffix}";
         }
 
         public static ADObjectClass GetClass(ResultPropertyValueCollection classes)

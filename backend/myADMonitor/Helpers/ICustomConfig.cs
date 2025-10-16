@@ -7,6 +7,7 @@
         string ListenAllIPs { get; }
         string TCPPort { get; }
         string AttributesFiltered { get; }
+        string UseLocalTime { get; }
 
     }
 }

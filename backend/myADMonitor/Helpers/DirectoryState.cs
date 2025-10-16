@@ -24,6 +24,7 @@ namespace myADMonitor.Helpers
         public static ICustomConfig? runConfig;
         public static bool listenAllIPs;
         public static int tCPPort;
+        public static bool UseLocalTime { get; private set; }
         private static HashSet<string> filteredAttributes = new(StringComparer.OrdinalIgnoreCase);
 
         public static void Start()
@@ -43,6 +44,7 @@ namespace myADMonitor.Helpers
 
             listenAllIPs = false;
             tCPPort = 5000;
+            UseLocalTime = false;
 
             Console.WriteLine("SETTING\t Config file path:\t" + configFilePath);
 
@@ -60,6 +62,7 @@ namespace myADMonitor.Helpers
                     .Build();
                 //Console.WriteLine(runConfig);
                 LoadFilteredAttributesFromConfig();
+                LoadTimePreferenceFromConfig();
             }
             //TODO: Set all config settings here, right after reading the config file.
         }
@@ -329,6 +332,31 @@ namespace myADMonitor.Helpers
             }
 
             HeaderDataInfo.AttributesFiltered = orderedAttributes;
+        }
+
+        private static void LoadTimePreferenceFromConfig()
+        {
+            string? configuredValue = runConfig?.UseLocalTime;
+
+            if (string.IsNullOrWhiteSpace(configuredValue))
+            {
+                UseLocalTime = false;
+                return;
+            }
+
+            if (configuredValue.Equals("local", StringComparison.OrdinalIgnoreCase))
+            {
+                UseLocalTime = true;
+            }
+            else if (configuredValue.Equals("utc", StringComparison.OrdinalIgnoreCase))
+            {
+                UseLocalTime = false;
+            }
+            else
+            {
+                UseLocalTime = false;
+                Console.WriteLine($"WARN\tInvalid UseLocalTime value '{configuredValue}' in config.ini. Defaulting to UTC.");
+            }
         }
 
         public static bool ShouldIgnoreAttribute(string attributeName)
